@@ -8,12 +8,12 @@
 #
 # Usage:
 #  
-#     $ ansible-playbook site.yml
+#     $ ansible-playbook -i ec2.py site.yml --extra-vars "env={ test | production }"
 
 - hosts: localhost
   name: AWS - Provision Resources and Instances
   connection: local
-  gather_facts: False
+  gather_facts: no
   user: ubuntu
 
   vars:
@@ -21,7 +21,10 @@
     instance_type: m1.small
     security_group: default
     image: my_ami_id
-    region: us-east-1  
+    region: us-east-1
+      
+    # This variable must be specified on the command line:
+    # env: { test | production }
 
   tasks:
   - name: EC2 - Provision Security Group 'ssh-all'
@@ -29,7 +32,7 @@
       name: ssh-all
       description: Allows incoming traffic on port 22 (from all IPs).
       region: "{{ region }}"
-      vpc_id: vpc-bdc9a5d9
+      #vpc_id: vpc-bdc9a5d9
       rules:
         - proto: tcp
           from_port: 22
@@ -51,19 +54,23 @@
       exact_count: 5
       count_tag:
         Name: Demo
+        environment: "{{ env }}"
       instance_tags:
         Name: Demo
+        environment: "{{ env }}"
     register: ec2
-
-  - name: Inventory - Add All Instances to Group 'ec2hosts' (by 'public_ip')
-    add_host: hostname={{ item.public_ip }} groups=ec2hosts
+  
+  - name: EC2 - Wait for SSH on New Instances, then Refresh Inventory
+    wait_for: host={{ item.public_ip }} search_regex=OpenSSH port=22 state=started
     with_items: ec2.instances
   
-  - name: EC2 - Wait for SSH
-    wait_for: host={{ item.public_ip }} port=22 state=started
-    with_items: ec2.instances
+  # This task won't print anything out but can take a few minutes. That may 
+  # make the previous task look like it's taking awhile. Oh well.
+  # Note: Must set 'cache_max_age = 0' in ec2.ini for this to actually work.
+  - name: Inventory - Refresh
+    meta: refresh_inventory
 
-- hosts: ec2hosts
+- hosts: tag_environment_{{ env }}
   name: AWS - Configure EC2 Instances
   user: ubuntu
   gather_facts: true
