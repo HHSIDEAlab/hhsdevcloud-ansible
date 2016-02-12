@@ -24,10 +24,10 @@
     # Disabled due to spam, but can be used to log all inventory data about 
     # each instance being terminated:
     # - debug: var=hostvars[inventory_hostname]
-
+    
     - name: Instances to Terminate - List
       debug: msg="EC2 Name - {{ hostvars[inventory_hostname]['ec2_tag_Name'] }}, EC2 ID - {{ hostvars[inventory_hostname]['ec2_id'] }}"
- 
+    
     - name: Instances to Terminate - Die Die Die
       local_action: ec2
         state=absent
