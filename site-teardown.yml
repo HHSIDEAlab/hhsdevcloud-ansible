@@ -1,0 +1,29 @@
+---
+# PERMANENTLY DESTROYS all AWS resources. Completely, 100% non-recoverable. 
+# Use only with caution!
+#
+# Usage:
+#  
+#     $ ansible-playbook -i ec2.py site-teardown.yml
+ 
+- hosts: ec2
+  gather_facts: True
+  connection: local
+  vars: 
+    - region: 'us-east-1'
+  tasks:
+    - name: Gather EC2 facts
+      local_action: ec2_facts
+ 
+    # Disabled due to spam, but will log all inventory data about each instance being terminated.
+    #- debug: var=hostvars[inventory_hostname]
+
+    - debug: msg="EC2 Name: '{{ hostvars[inventory_hostname]['ec2_tag_Name'] }}', EC2 ID: '{{ hostvars[inventory_hostname]['ec2_id'] }}'"
+ 
+    - name: Terminate instances 
+      local_action: ec2
+        state='absent'
+        instance_ids='{{ ec2_id }}'
+        region='{{ region }}'
+        wait=True
+

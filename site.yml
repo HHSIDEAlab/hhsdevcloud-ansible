@@ -1,0 +1,75 @@
+---
+# This playbook manages the HHS Dev Cloud's development infrastructure:
+# 
+# * Java Build Servers: Jenkins, SonarQube, and Nexus
+# * LDAP Server: Used to centralize user accounts for other servers
+# * JIRA
+# * etc. ...
+#
+# Usage:
+#  
+#     $ ansible-playbook site.yml
+
+- hosts: localhost
+  name: AWS - Provision Resources and Instances
+  connection: local
+  gather_facts: False
+  user: ubuntu
+
+  vars:
+    key_name: my_keypair
+    instance_type: m1.small
+    security_group: default
+    image: my_ami_id
+    region: us-east-1  
+
+  tasks:
+  - name: EC2 - Provision Security Group 'ssh-all'
+    ec2_group:
+      name: ssh-all
+      description: Allows incoming traffic on port 22 (from all IPs).
+      region: "{{ region }}"
+      vpc_id: vpc-bdc9a5d9
+      rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+      rules_egress:
+        - proto: all
+          cidr_ip: 0.0.0.0/0
+        
+  - name: EC2 - Provision Instances 'Demo'
+    ec2:
+      key_name: cms-karl
+      group: 
+        - ssh-all
+      instance_type: t2.micro
+      image: "{{ ami_id }}"
+      region: "{{ region }}"
+      wait: true
+      exact_count: 5
+      count_tag:
+        Name: Demo
+      instance_tags:
+        Name: Demo
+    register: ec2
+
+  - name: Inventory - Add All Instances to Group 'ec2hosts' (by 'public_ip')
+    add_host: hostname={{ item.public_ip }} groups=ec2hosts
+    with_items: ec2.instances
+  
+  - name: EC2 - Wait for SSH
+    wait_for: host={{ item.public_ip }} port=22 state=started
+    with_items: ec2.instances
+
+- hosts: ec2hosts
+  name: AWS - Configure EC2 Instances
+  user: ubuntu
+  gather_facts: true
+
+  tasks:
+
+  - name: Check Service 'acpid'
+    service: name=acpid state=started
+
