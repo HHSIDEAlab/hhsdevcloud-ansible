@@ -38,7 +38,24 @@
           - proto: all
             cidr_ip: 0.0.0.0/0
     
-    - name: EC2 - Provision Instances 'Demo'
+    - name: RDS - Provision 'postgres-dev'
+      rds:
+        command: create
+        region: "{{ region }}"
+        instance_name: "{{ postgres_dev_instance_name }}"
+        db_engine: postgres
+        size: 10
+        instance_type: db.t2.medium
+        publicly_accessible: false
+        username: "{{ postgres_dev_master_username }}"
+        password: "{{ postgres_dev_master_password }}"
+        tags:
+          # Note: See https://github.com/ansible/ansible/issues/14464
+          environment: "{{ env }}"
+        wait: true
+        wait_timeout: 900
+
+    - name: EC2 - Provision Instances 'Demo1'
       ec2:
         key_name: "{{ ec2_key_name }}"
         group: 
@@ -47,24 +64,51 @@
         image: "{{ ami_id_ubuntu }}"
         region: "{{ region }}"
         wait: true
-        exact_count: 5
+        exact_count: 2
         count_tag:
-          Name: Demo
+          Name: Demo1
           environment: "{{ env }}"
         instance_tags:
-          Name: Demo
+          Name: Demo1
           environment: "{{ env }}"
-      register: ec2
+      register: ec2_updated
+      notify:
+        - EC2 - Wait for SSH
+
+    - name: EC2 - Provision Instances 'Demo2'
+      ec2:
+        key_name: "{{ ec2_key_name }}"
+        group: 
+          - ssh-all
+        instance_type: t2.micro
+        image: "{{ ami_id_ubuntu }}"
+        region: "{{ region }}"
+        wait: true
+        exact_count: 2
+        count_tag:
+          Name: Demo2
+          environment: "{{ env }}"
+        instance_tags:
+          Name: Demo2
+          environment: "{{ env }}"
     
-    - name: EC2 - Wait for SSH on New Instances, then Refresh Inventory
-      wait_for: host={{ item.public_ip }} search_regex=OpenSSH port=22 state=started
-      with_items: ec2.instances
-  
-    # This task won't print anything out but can take a few minutes. That may 
-    # make the previous task look like it's taking awhile. Oh well.
+    # This task won't print anything out but can take a few minutes. That 
+    # may make the previous task look like it's taking awhile. Oh well.
     # Note: Must set 'cache_max_age = 0' in ec2.ini for this to actually work.
+    # Note: It'd be great if this could be run as a handler, so it's only run
+    # when needed, but it can't (for some reason).
     - name: Inventory - Refresh
       meta: refresh_inventory
+
+- hosts: tag_environment_{{ env }}
+  name: AWS - Wait for SSH
+  connection: local
+  gather_facts: false
+  
+  tasks:
+  
+    - name: EC2 - Wait for SSH
+      wait_for: host={{ inventory_hostname }} search_regex=OpenSSH port=22 state=started
 
 - hosts: tag_environment_{{ env }}
   name: AWS - Configure EC2 Instances
@@ -76,3 +120,4 @@
     - name: Check Service 'acpid'
       service: name=acpid state=started
 
+# TODO: Need to setup JIRA. Will have to figure out how to reference variables from one host, in a different one. Or something.

@@ -4,3 +4,10 @@
 # Ubuntu 14.04 (Trusty)
 ami_id_ubuntu: ami-d05e75b8
 
+# FIXME: Once https://github.com/ansible/ansible/issues/14464
+# is solved, remove the env from the name.
+postgres_dev_instance_name: postgres-dev-{{ env }}
+
+# FIXME: store these in Ansible Vault.
+postgres_dev_master_username: postgres
+postgres_dev_master_password: insecure
