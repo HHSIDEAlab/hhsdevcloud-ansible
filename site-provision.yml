@@ -1,0 +1,101 @@
+---
+# This playbook provisions the AWS resources for the HHS Dev Cloud's 
+# development infrastructure.
+#
+# Usage: This playbook should be included from `site.yml`.
+
+- hosts: localhost
+  name: AWS - Provision Resources and Instances
+  connection: local
+  gather_facts: false
+  
+  tasks:
+    
+    - name: EC2 - Provision Security Group 'ssh-all'
+      ec2_group:
+        name: ssh-all
+        description: Allows incoming traffic on port 22 (from all IPs).
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+    
+    - name: RDS - Provision 'postgres-dev'
+      rds:
+        command: create
+        region: "{{ region }}"
+        instance_name: "{{ postgres_dev_instance_name }}"
+        db_engine: postgres
+        size: 10
+        instance_type: db.t2.medium
+        publicly_accessible: false
+        username: "{{ postgres_dev_master_username }}"
+        password: "{{ postgres_dev_master_password }}"
+        tags:
+          # Note: See https://github.com/ansible/ansible/issues/14464
+          environment: "{{ env }}"
+        wait: true
+        wait_timeout: 900
+
+    - name: EC2 - Provision 'ldap'
+      ec2:
+        key_name: "{{ ec2_key_name }}"
+        group:
+          - ssh-all
+        instance_type: t2.micro
+        image: "{{ ami_id_ubuntu }}"
+        region: "{{ region }}"
+        wait: true
+        exact_count: 1
+        count_tag:
+          Name: ldap
+          environment: "{{ env }}"
+        instance_tags:
+          Name: ldap
+          environment: "{{ env }}"
+
+    - name: EC2 - Provision 'jira'
+      ec2:
+        key_name: "{{ ec2_key_name }}"
+        group:
+          - ssh-all
+
+        # JIRA Recommended System Requirements (<= 5000 issues): 2+ vCPUs, 2+GB RAM, 10GB-50GB disk
+        # Reference: https://confluence.atlassian.com/jira/jira-requirements-185729596.html#JIRARequirements-JIRAServerHardwareRecommendationforProduction
+        # This instance type has 1 vCPUs and 1GB RAM (we're cheating on the recommendations)
+        instance_type: t2.micro
+
+        image: "{{ ami_id_ubuntu }}"
+        region: "{{ region }}"
+        wait: true
+        exact_count: 1
+        count_tag:
+          Name: jira
+          environment: "{{ env }}"
+        instance_tags:
+          Name: jira
+          environment: "{{ env }}"
+    
+    # This task won't print anything out but can take a few minutes. That 
+    # may make the previous task look like it's taking awhile. Oh well.
+    # Note: Must set 'cache_max_age = 0' in ec2.ini for this to actually work.
+    # Note: It'd be great if this could be run as a handler, so it's only run
+    # when needed, but it can't (for some reason).
+    - name: Inventory - Refresh
+      meta: refresh_inventory
+
+- hosts: tag_environment_{{ env }}
+  name: AWS - Wait for SSH
+  connection: local
+  gather_facts: false
+  
+  tasks:
+  
+    - name: EC2 - Wait for SSH
+      wait_for: host={{ inventory_hostname }} search_regex=OpenSSH port=22 state=started
+

@@ -1,0 +1,17 @@
+---
+# This playbook configures the AWS resources for the HHS Dev Cloud's 
+# development infrastructure.
+#
+# Usage: This playbook should be included from `site.yml`.
+
+- hosts: tag_environment_{{ env }}:&tag_Name_jira
+  name: Configure 'jira'
+  user: ubuntu
+  gather_facts: true
+
+  vars:
+    - rds_postgres_dev_hostvars_name: "{{ hostvars | get_members(groups, 'rds') | selectattr('ec2_id', 'equalto', 'postgres-dev-test') | map(attribute='ec2__address') | list }}"
+
+#  roles:
+#    - foo
+
