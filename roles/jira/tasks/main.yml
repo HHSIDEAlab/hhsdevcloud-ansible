@@ -1,0 +1,20 @@
+---
+
+- name: JIRA - Create Directory '/opt/atlassian'
+  file: path=/opt/atlassian state=directory
+
+- name: JIRA - Create Directory '/opt/atlassian/jira'
+  file: path=/opt/atlassian/jira state=directory
+
+- name: JIRA - Copy Response File
+  copy: src=response.varfile dest=/opt/atlassian/jira/response.varfile owner=root group=root mode="u=rw,g=rw,o=r"
+
+- name: JIRA - Download Installer
+  get_url: url=https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin dest=/opt/atlassian/jira mode=0550
+
+- name: JIRA - Install
+  command: /opt/atlassian/jira/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin -q -varfile /opt/atlassian/jira/response.varfile
+  args:
+    chdir: /opt/atlassian/jira/
+    creates: /opt/atlassian/jira/install.reg
+

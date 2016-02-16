@@ -8,10 +8,12 @@
   name: Configure 'jira'
   user: ubuntu
   gather_facts: true
+  become: true
 
   vars:
-    - rds_postgres_dev_hostvars_name: "{{ hostvars | get_members(groups, 'rds') | selectattr('ec2_id', 'equalto', 'postgres-dev-test') | map(attribute='ec2__address') | list }}"
+    rds_postgres_dev_address: "{{ hostvars | get_members(groups, 'rds') | selectattr('ec2_id', 'equalto', 'postgres-dev-test') | map(attribute='ec2__address') | list }}"
+    rds_postgres_dev_port: "{{ hostvars | get_members(groups, 'rds') | selectattr('ec2_id', 'equalto', 'postgres-dev-test') | map(attribute='ec2__port') | list }}"
 
-#  roles:
-#    - foo
+  roles:
+    - jira
 
