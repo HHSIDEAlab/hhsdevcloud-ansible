@@ -4,6 +4,15 @@
 #
 # Usage: This playbook should be included from `site.yml`.
 
+- hosts: tag_environment_{{ env }}:&tag_Name_ldap
+  name: Configure 'ldap'
+  user: ubuntu
+  gather_facts: true
+  become: true
+
+  roles:
+    - ldap-server
+
 - hosts: tag_environment_{{ env }}:&tag_Name_jira
   name: Configure 'jira'
   user: ubuntu

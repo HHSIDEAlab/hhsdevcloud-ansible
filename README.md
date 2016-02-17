@@ -38,6 +38,12 @@ Be sure to update the `requirements.txt` file after `pip install`ing a new depen
 
     $ pip freeze > requirements.txt
 
+### Ansible Roles
+
+Run the following command to download and install the roles required by this project into `~/.ansible/roles/`:
+
+    $ ansible-galaxy install -r install_roles.yml
+
 ## Provisioning and Configuring AWS Resources
 
 Running the following command will provision and configure all of the AWS resources specified in `site.yml`:
