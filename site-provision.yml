@@ -25,6 +25,20 @@
           - proto: all
             cidr_ip: 0.0.0.0/0
     
+    - name: EC2 - Provision Security Group 'http-all'
+      ec2_group:
+        name: http-all
+        description: Allows incoming traffic on port 80 (from all IPs).
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+    
     - name: RDS - Provision 'postgres-dev'
       rds:
         command: create
@@ -46,6 +60,7 @@
       ec2:
         key_name: "{{ ec2_key_name }}"
         group:
+          - default
           - ssh-all
         instance_type: t2.micro
         image: "{{ ami_id_ubuntu }}"
@@ -63,12 +78,13 @@
       ec2:
         key_name: "{{ ec2_key_name }}"
         group:
+          - default
           - ssh-all
 
         # JIRA Recommended System Requirements (<= 5000 issues): 2+ vCPUs, 2+GB RAM, 10GB-50GB disk
         # Reference: https://confluence.atlassian.com/jira/jira-requirements-185729596.html#JIRARequirements-JIRAServerHardwareRecommendationforProduction
-        # This instance type has 1 vCPUs and 1GB RAM (we're cheating on the recommendations)
-        instance_type: t2.micro
+        # This instance type has 2 vCPUs and 4GB RAM
+        instance_type: t2.medium
 
         image: "{{ ami_id_ubuntu }}"
         region: "{{ region }}"
@@ -80,19 +96,39 @@
         instance_tags:
           Name: jira
           environment: "{{ env }}"
+
+    - name: EC2 - Provision 'dev-nginx'
+      ec2:
+        key_name: "{{ ec2_key_name }}"
+        group:
+          - default
+          - ssh-all
+          - http-all
+        instance_type: t2.micro
+        image: "{{ ami_id_ubuntu }}"
+        region: "{{ region }}"
+        wait: true
+        exact_count: 1
+        count_tag:
+          Name: dev-nginx
+          environment: "{{ env }}"
+        instance_tags:
+          Name: dev-nginx
+          environment: "{{ env }}"
     
     # This task won't print anything out but can take a few minutes. That 
     # may make the previous task look like it's taking awhile. Oh well.
     # Note: Must set 'cache_max_age = 0' in ec2.ini for this to actually work.
     # Note: It'd be great if this could be run as a handler, so it's only run
     # when needed, but it can't (for some reason).
+    # TODO: File Ansible issue: calling this in any play wipes out all EC2 facts in inventory
     - name: Inventory - Refresh
       meta: refresh_inventory
 
 - hosts: tag_environment_{{ env }}
   name: AWS - Wait for SSH
   connection: local
-  gather_facts: false
+  gather_facts: true
   
   tasks:
   

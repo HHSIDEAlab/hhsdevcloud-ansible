@@ -1,10 +1,11 @@
 #install4j response file for JIRA Software 7.1.0
 #Tue Feb 16 02:08:16 UTC 2016
+# This file is managed via Ansible: https://github.com/HHSIDEAlab/hhsdevcloud-ansible
 sys.languageId=en
 sys.installationDir=/opt/atlassian/jira
 app.jiraHome=/var/atlassian/application-data/jira
 portChoice=custom
-httpPort$Long=8080
+httpPort$Long={{ jira_port_private }}
 rmiPort$Long=8005
 app.install.service$Boolean=true
 executeLauncherAction$Boolean=true

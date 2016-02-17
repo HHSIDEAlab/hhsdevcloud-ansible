@@ -13,6 +13,10 @@ This project requires Python 2.7. It can be installed as follows:
 
     $ sudo apt-get install python
 
+The following packages are also required by some of the Python modules that will be used:
+
+    $ sudo apt-get install libpq-dev
+
 ### virtualenv
 
 This project has some dependencies that have to be installed via `pip` (as opposed to `apt-get`). Accordingly, it's strongly recommended that you make use of a [Python virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/) to manage those dependencies.

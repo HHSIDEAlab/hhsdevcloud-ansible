@@ -11,9 +11,19 @@
   become: true
 
   vars:
-    rds_postgres_dev_address: "{{ hostvars | get_members(groups, 'rds') | selectattr('ec2_id', 'equalto', 'postgres-dev-test') | map(attribute='ec2__address') | list }}"
-    rds_postgres_dev_port: "{{ hostvars | get_members(groups, 'rds') | selectattr('ec2_id', 'equalto', 'postgres-dev-test') | map(attribute='ec2__port') | list }}"
+    rds_postgres_dev_address: "{{ hostvars | get_members(groups, 'rds') | selectattr('ec2_id', 'equalto', 'postgres-dev-test') | map(attribute='ec2__address') | list | first }}"
+    rds_postgres_dev_port: "{{ hostvars | get_members(groups, 'rds') | selectattr('ec2_id', 'equalto', 'postgres-dev-test') | map(attribute='ec2__port') | list | first }}"
 
   roles:
     - jira
+
+- hosts: tag_environment_{{ env }}:&tag_Name_dev_nginx
+  name: Configure 'dev-nginx'
+  user: ubuntu
+  gather_facts: true
+  become: true
+
+  roles:
+    - { role: dev-nginx,
+          jira_address_private: "{{ hostvars | get_members(groups, 'tag_Name_jira') | map(attribute='ec2_private_dns_name') | list | first }}" }
 

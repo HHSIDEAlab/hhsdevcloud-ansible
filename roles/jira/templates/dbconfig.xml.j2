@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This file is managed via Ansible: https://github.com/HHSIDEAlab/hhsdevcloud-ansible -->
+
+<jira-database-config>
+  <name>defaultDS</name>
+  <delegator-name>default</delegator-name>
+  <database-type>postgres72</database-type>
+  <schema-name>public</schema-name>
+  <jdbc-datasource>
+    <url>jdbc:postgresql://{{ rds_postgres_dev_address }}:{{ rds_postgres_dev_port }}/jira</url>
+    <driver-class>org.postgresql.Driver</driver-class>
+    <username>{{ jira_db_username }}</username>
+    <password>{{ jira_db_password }}</password>
+    <pool-min-size>20</pool-min-size>
+    <pool-max-size>20</pool-max-size>
+    <pool-max-wait>30000</pool-max-wait>
+    <validation-query>select 1</validation-query>
+    <pool-max-idle>20</pool-max-idle>
+    <pool-remove-abandoned>true</pool-remove-abandoned>
+    <pool-remove-abandoned-timeout>300</pool-remove-abandoned-timeout>
+  </jdbc-datasource>
+</jira-database-config>

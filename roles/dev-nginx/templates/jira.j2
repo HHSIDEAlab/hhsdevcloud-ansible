@@ -1,0 +1,30 @@
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# http://wiki.nginx.org/Pitfalls
+# http://wiki.nginx.org/QuickStart
+# http://wiki.nginx.org/Configuration
+#
+# Generally, you will want to move this file somewhere, and start with a clean
+# file but keep this around for reference. Or just disable in sites-enabled.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+# Note: Once we add SSL support here, some additional config is needed here and in JIRA's Tomcat:
+# * https://confluence.atlassian.com/display/JIRAKB/Integrating+JIRA+with+Nginx
+# * https://confluence.atlassian.com/jira/integrating-jira-with-apache-using-ssl-203395380.html
+
+server {
+	listen 80;
+	server_name {{ jira_address_public }};
+
+	location / {
+		proxy_set_header X-Forwarded-Host $host;
+		proxy_set_header X-Forwarded-Server $host;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_pass http://{{ jira_address_private }}:{{ jira_port_private }};
+		client_max_body_size 10M;
+	}
+}
+

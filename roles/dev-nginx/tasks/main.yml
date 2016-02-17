@@ -1,0 +1,24 @@
+---
+
+- name: Install
+  apt: name={{ item }} update_cache=true cache_valid_time="{{ 60 * 15 }}"
+  with_items:
+    - nginx
+
+- name: Disable Site 'default'
+  command: rm /etc/nginx/sites-enabled/default
+  args:
+    removes: /etc/nginx/sites-enabled/default
+  notify:
+    - Restart Service 'nginx'
+
+- name: Create Site 'jira'
+  template: src=jira.j2 dest=/etc/nginx/sites-available/jira owner=root group=root mode="u=rw,g=r,o=r"
+  notify:
+    - Restart Service 'nginx'
+
+- name: Enable Site 'jira'
+  file: src=/etc/nginx/sites-available/jira dest=/etc/nginx/sites-enabled/jira owner=root group=root state=link
+  notify:
+    - Restart Service 'nginx'
+

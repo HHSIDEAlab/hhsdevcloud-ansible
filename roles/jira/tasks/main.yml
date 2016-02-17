@@ -1,20 +1,62 @@
 ---
 
-- name: JIRA - Create Directory '/opt/atlassian'
+- name: Create Directory '/opt/atlassian'
   file: path=/opt/atlassian state=directory
 
-- name: JIRA - Create Directory '/opt/atlassian/jira'
+- name: Create Directory '/opt/atlassian/jira'
   file: path=/opt/atlassian/jira state=directory
 
-- name: JIRA - Copy Response File
-  copy: src=response.varfile dest=/opt/atlassian/jira/response.varfile owner=root group=root mode="u=rw,g=rw,o=r"
+- name: Response File
+  template: src=response.varfile.j2 dest=/opt/atlassian/jira/response.varfile owner=root group=root mode="u=rw,g=rw,o=r"
 
-- name: JIRA - Download Installer
-  get_url: url=https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin dest=/opt/atlassian/jira mode=0550
+- name: Download Installer
+  get_url: url=https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin dest=/opt/atlassian/jira/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin mode=0550
+  # get_url: url=https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.1.0-jira-7.1.0-x32.bin dest=/opt/atlassian/jira/atlassian-jira-software-7.1.0-jira-7.1.0-x32.bin mode=0550
 
-- name: JIRA - Install
+- name: Install Prerequisites
+  apt: name={{ item }} update_cache=true cache_valid_time="{{ 60 * 15 }}"
+  with_items:
+    - libpq-dev
+    - python-psycopg2
+
+- name: Install
   command: /opt/atlassian/jira/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin -q -varfile /opt/atlassian/jira/response.varfile
   args:
     chdir: /opt/atlassian/jira/
     creates: /opt/atlassian/jira/install.reg
+
+- name: Create Database
+  postgresql_db:
+    login_host="{{ rds_postgres_dev_address }}"
+    login_user="{{ postgres_dev_master_username }}"
+    login_password="{{ postgres_dev_master_password }}"
+    name=jira
+    encoding='UNICODE'
+    lc_collate='C'
+    lc_ctype='C'
+    template='template0'
+  register: create_db_jira
+
+- name: Create Database User
+  postgresql_user:
+    login_host="{{ rds_postgres_dev_address }}"
+    login_user="{{ postgres_dev_master_username }}"
+    login_password="{{ postgres_dev_master_password }}"
+    db=jira
+    name="{{ jira_db_username }}"
+    password="{{ jira_db_password}}"
+    priv=ALL
+  # Workaround for https://github.com/ansible/ansible-modules-core/issues/297
+  # Note: This issue makes it impossible to change PostgreSQL user's password/privileges via Ansible.
+  when: create_db_jira.changed
+
+- name: Config File 'dbconfig.xml'
+  template: src=dbconfig.xml.j2 dest=/var/atlassian/application-data/jira/dbconfig.xml owner=jira group=jira mode="u=rw,g=rw,o="
+  notify:
+    - Restart Service 'jira'
+
+- name: Config File 'server.xml'
+  template: src=server.xml.j2 dest=/opt/atlassian/jira/conf/server.xml owner=root group=root mode="u=rw,g=r,o=r"
+  notify:
+    - Restart Service 'jira'
 
