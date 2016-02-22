@@ -1,0 +1,50 @@
+---
+#
+# Variables here are applicable to the `ldap_server` role.
+#
+
+# Define all of the staff user+group entries to be created.
+people:
+  karldavis:
+    givenName: Karl
+    sn: Davis
+    uidAndGidNumber: 10000
+    mail: karl.davis@cms.hhs.gov
+    password: "{{ vault_ldap_karldavis_password }}"
+  markscrimshire:
+    givenName: Mark
+    sn: Scrimshire
+    uidAndGidNumber: 10001
+    mail: mark.scrimshire@cms.hhs.gov
+    password: "{{ vault_ldap_markscrimshire_password }}"
+  alanviars:
+    givenName: Alan
+    sn: Viars
+    uidAndGidNumber: 10002
+    mail: alan.viars@cms.hhs.gov
+    password: "{{ vault_ldap_alanviars_password }}"
+  lorimaattta:
+    givenName: Lori
+    sn: Maatta
+    uidAndGidNumber: 10003
+    mail: lori.maata@cms.hhs.gov
+    password: "{{ vault_ldap_lorimaatta_password }}"
+  carlymedosch:
+    givenName: Carly
+    sn: Medosch
+    uidAndGidNumber: 10004
+    mail: carly.medosch@cms.hhs.gov
+    password: "{{ vault_ldap_carlymedosch_password }}"
+  christinecox:
+    givenName: Christine
+    sn: Cox
+    uidAndGidNumber: 10005
+    mail: christine.cox@cms.hhs.gov
+    password: "{{ vault_ldap_christinecox_password }}"
+  niallbrennan:
+    givenName: Niall
+    sn: Brennan
+    uidAndGidNumber: 10006
+    mail: niall.brennan@cms.hhs.gov
+    password: "{{ vault_ldap_niallbrennan_password }}"
+

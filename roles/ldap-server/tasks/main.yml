@@ -32,32 +32,36 @@
 - ldap_entry: 
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
-    dn: 'uid=karldavis,ou=people,dc=hhsdevcloud,dc=us' 
-    objectClass: ['inetOrgPerson', 'posixAccount']
-    uid: karldavis
-    cn: 'Karl M. Davis'
-    displayName: 'Karl M. Davis'
-    givenName: 'Karl'
-    sn: 'Davis'
-    uidNumber: '10000'
-    gidNumber: '10000'
-    userPassword: "{{ ldap_karldavis_password }}"
-    loginShell: '/bin/bash'
-    homeDirectory: '/home/karldavis'
-    mail: 'karl.davis@cms.hhs.gov'
-- ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
-    dn: 'cn=karldavis,ou=groups,dc=hhsdevcloud,dc=us'
-    objectClass: 'posixGroup'
-    cn: 'karldavis'
-    gidNumber: '10000'
-
-- ldap_entry: 
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
     dn: 'cn=jira,ou=services,dc=hhsdevcloud,dc=us' 
     objectClass: ['organizationalRole', 'simpleSecurityObject']
     cn: jira
     userPassword: "{{ ldap_jira_password }}"
+
+# Create `ou=people` entries for each `people` entry (in `../vars/main.yml`).
+- ldap_entry: 
+    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
+    bind_pw: "{{ ldap_root_password }}"
+    dn: "uid={{ item.key }},ou=people,dc=hhsdevcloud,dc=us"
+    objectClass: ['inetOrgPerson', 'posixAccount']
+    uid: "{{ item.key }}"
+    cn: "{{ item.value.givenName }} {{ item.value.sn }}"
+    displayName: "{{ item.value.givenName }} {{ item.value.sn }}"
+    givenName: "{{ item.value.givenName }}"
+    sn: "{{ item.value.sn }}"
+    uidNumber: "{{ item.value.uidAndGidNumber }}"
+    gidNumber: "{{ item.value.uidAndGidNumber }}"
+    userPassword: "{{ item.value.password }}"
+    loginShell: '/bin/bash'
+    homeDirectory: "/home/{{ item.key }}"
+    mail: "{{ item.value.mail }}"
+  with_dict: "{{ people }}"
+# Create `ou=groups` entries for each `people` entry (in `../vars/main.yml`).
+- ldap_entry:
+    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
+    bind_pw: "{{ ldap_root_password }}"
+    dn: "cn={{ item.key }},ou=groups,dc=hhsdevcloud,dc=us"
+    objectClass: 'posixGroup'
+    cn: "{{ item.key }}"
+    gidNumber: "{{ item.value.uidAndGidNumber }}"
+  with_dict: "{{ people }}"
 
