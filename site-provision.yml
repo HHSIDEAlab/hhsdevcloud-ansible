@@ -11,6 +11,10 @@
   
   tasks:
     
+    - name: Local - whoami
+      local_action: command whoami
+      register: whoami
+    
     - name: EC2 - Provision Security Group 'ssh-all'
       ec2_group:
         name: ssh-all
@@ -52,7 +56,8 @@
         password: "{{ postgres_dev_master_password }}"
         tags:
           # Note: See https://github.com/ansible/ansible/issues/14464
-          environment: "{{ env }}"
+          Environment: "{{ env }}"
+          CreatedBy: whoami.stdout
         wait: true
         wait_timeout: 900
 
@@ -69,10 +74,11 @@
         exact_count: 1
         count_tag:
           Name: ldap
-          environment: "{{ env }}"
+          Environment: "{{ env }}"
         instance_tags:
           Name: ldap
-          environment: "{{ env }}"
+          Environment: "{{ env }}"
+          CreatedBy: whoami.stdout
 
     - name: EC2 - Provision 'jira'
       ec2:
@@ -92,10 +98,11 @@
         exact_count: 1
         count_tag:
           Name: jira
-          environment: "{{ env }}"
+          Environment: "{{ env }}"
         instance_tags:
           Name: jira
-          environment: "{{ env }}"
+          Environment: "{{ env }}"
+          CreatedBy: whoami.stdout
 
     - name: EC2 - Provision 'dev-nginx'
       ec2:
@@ -111,10 +118,11 @@
         exact_count: 1
         count_tag:
           Name: dev-nginx
-          environment: "{{ env }}"
+          Environment: "{{ env }}"
         instance_tags:
           Name: dev-nginx
-          environment: "{{ env }}"
+          Environment: "{{ env }}"
+          CreatedBy: whoami.stdout
     
     # This task won't print anything out but can take a few minutes. That 
     # may make the previous task look like it's taking awhile. Oh well.
@@ -125,7 +133,7 @@
     - name: Inventory - Refresh
       meta: refresh_inventory
 
-- hosts: tag_environment_{{ env }}
+- hosts: tag_Environment_{{ env }}
   name: AWS - Wait for SSH
   connection: local
   gather_facts: true

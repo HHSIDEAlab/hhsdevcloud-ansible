@@ -17,7 +17,7 @@
 
 server {
 	listen 80;
-	server_name {{ jira_address_public }};
+	server_name {{ jira_dns }};
 
 	location / {
 		proxy_set_header X-Forwarded-Host $host;

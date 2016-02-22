@@ -8,7 +8,7 @@
 #
 # Usage:
 #  
-#     $ ansible-playbook -i ec2.py site.yml --extra-vars "env={ test | production }"
+#     $ ansible-playbook --extra-vars "ec2_key_name=foo env={ test | production }"
 
 - include: site-provision.yml
 - include: site-configure.yml

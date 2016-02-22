@@ -1,0 +1,36 @@
+---
+#
+# Variables here are applicable to all host groups.
+#
+
+region: us-east-1
+
+# Ubuntu 14.04 (Trusty)
+ami_id_ubuntu: ami-d05e75b8
+
+# If `env` is not `production`, we prefix all DNS records with `-{{ env }}`,
+# in order to prevent dev/test DNS records from colliding with production ones.
+dns_record_suffix: "{{ '-%s' % env if env != 'production' else '' }}"
+
+# FIXME: Once https://github.com/ansible/ansible/issues/14464
+# is solved, remove the env from the name.
+postgres_dev_instance_name: postgres-dev-{{ env }}
+
+# (The actual values for these are stored in vault.yml.)
+postgres_dev_master_username: "{{ vault_postgres_dev_master_username }}"
+postgres_dev_master_password: "{{ vault_postgres_dev_master_password }}"
+
+jira_port_private: 8080
+jira_dns: "issues{{ dns_record_suffix }}.hhsdevcloud.us"
+
+# (The actual values for these are stored in vault.yml.)
+jira_db_username: "{{ vault_jira_db_username }}"
+jira_db_password: "{{ vault_jira_db_password }}"
+
+ldap_dns: "ldap{{ dns_record_suffix }}.hhsdevcloud.us"
+
+# (The actual values for these are stored in vault.yml.)
+ldap_root_password: "{{ vault_ldap_root_password }}"
+ldap_karldavis_password: "{{ vault_ldap_karldavis_password }}"
+ldap_jira_password: "{{ vault_ldap_jira_password }}"
+

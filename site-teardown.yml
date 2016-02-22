@@ -6,7 +6,7 @@
 #  
 #     $ ansible-playbook -i ec2.py site-teardown.yml --extra-vars "env={ test | production }"
  
-- hosts: tag_environment_{{ env }}
+- hosts: tag_Environment_{{ env }}
   name: AWS - Terminate EC2 Instances
   gather_facts: false
   
@@ -56,6 +56,7 @@
     
     - name: Instances to Terminate - List
       debug: msg="EC2 Name - {{ hostvars[inventory_hostname]['ec2_id'] }}, EC2 ID - {{ hostvars[inventory_hostname]['ec2__address'] }}"
+      when: ec2_id == "{{ postgres_dev_instance_name }}"
     
     - name: Instances to Terminate - Die Die Die
       local_action: rds

@@ -44,21 +44,47 @@ Run the following command to download and install the roles required by this pro
 
     $ ansible-galaxy install -r install_roles.yml
 
+### AWS Credentials
+
+Per <http://blogs.aws.amazon.com/security/post/Tx3D6U6WSFGOK2H/A-New-and-Standardized-Way-to-Manage-Credentials-in-the-AWS-SDKs>, create `~/.aws/credentials` and populate it with your AWS access key and secret (obtained from IAM):
+
+    [default]
+    # These AWS keys are for the john.smith@cms.hhs.gov account.
+    aws_access_key_id = secret
+    aws_secret_access_key = supersecret
+
+Ensure that the EC2 key to be used is loaded into SSH Agent:
+
+    $ ssh-add foo.pem
+
 ## Provisioning and Configuring AWS Resources
 
 Running the following command will provision and configure all of the AWS resources specified in `site.yml`:
 
-    $ ansible-playbook site.yml
+    $ ansible-playbook site.yml --extra-vars "ec2_key_name=foo env=test"
+
+Be sure to set `ec2_key_name` to the name of the EC2 key that was `ssh-add`'d, earlier. Also ensure that `env` is set to either `test` or `production`, as appropriate.
 
 ### Teardown
 
-**WARNING!** This should only be used in development or test environments. This command will terminate **all** EC2 and RDS instances in AWS (not just those specified in `site.yml`; it will terminate everything in the account):
+**WARNING!** This should only be used in development or test environments. This command will terminate **all** EC2 and RDS instances in AWS that match the specified `Environment` tag (not just those specified in `site.yml`; it will terminate everything in the account that matches):
 
-    $ ansible-playbook -i ec2.py site-teardown.yml
+    $ ansible-playbook site-teardown.yml --extra-vars "env=test"
 
 ## Running Ad-Hoc Commands
 
 Once the AWS resources have been provisioned, ad-hoc commands can be run against them, as follows:
 
-    $ ansible all -i ec2.py -u ubuntu -m shell -a 'echo $TERM'
+    $ ansible all -u ubuntu -m shell -a 'echo $TERM'
+
+## Troubleshooting
+
+### Error Running `site.yml`: "`ERROR! ERROR! 'dict object' has no attribute 'foo'`"
+
+This seems to be a bug with Ansible's `meta: refresh_inventory`: it somehow screws up the dynamic inventory. I've done some tests, and running that task causes this problem every time.
+
+The workaround is simple, though: just run the `site-provision.yml` and `site-configure.yml` playbooks separately, e.g.:
+
+    $ ansible-playbook site-provision.yml --extra-vars "ec2_key_name=foo env=test"
+    $ ansible-playbook site-configure.yml --extra-vars "ec2_key_name=foo env=test"
 

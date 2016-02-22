@@ -23,6 +23,11 @@
     bind_pw: "{{ ldap_root_password }}"
     dn: 'ou=groups,dc=hhsdevcloud,dc=us'
     objectClass: ['organizationalUnit']
+- ldap_entry:
+    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
+    bind_pw: "{{ ldap_root_password }}"
+    dn: 'ou=services,dc=hhsdevcloud,dc=us'
+    objectClass: ['organizationalUnit']
 
 - ldap_entry: 
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
@@ -36,7 +41,7 @@
     sn: 'Davis'
     uidNumber: '10000'
     gidNumber: '10000'
-    userPassword: '{SSHA}177xK6YaEmYvdom7b3SSlKWfkqriRR56'
+    userPassword: "{{ ldap_karldavis_password }}"
     loginShell: '/bin/bash'
     homeDirectory: '/home/karldavis'
     mail: 'karl.davis@cms.hhs.gov'
@@ -47,4 +52,12 @@
     objectClass: 'posixGroup'
     cn: 'karldavis'
     gidNumber: '10000'
+
+- ldap_entry: 
+    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
+    bind_pw: "{{ ldap_root_password }}"
+    dn: 'cn=jira,ou=services,dc=hhsdevcloud,dc=us' 
+    objectClass: ['organizationalRole', 'simpleSecurityObject']
+    cn: jira
+    userPassword: "{{ ldap_jira_password }}"
 
