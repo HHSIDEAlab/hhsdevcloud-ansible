@@ -88,3 +88,8 @@ The workaround is simple, though: just run the `site-provision.yml` and `site-co
     $ ansible-playbook site-provision.yml --extra-vars "ec2_key_name=foo env=test"
     $ ansible-playbook site-configure.yml --extra-vars "ec2_key_name=foo env=test"
 
+### Error Running `pip install -r requirements.txt`: "`ImportError: No module named ...`"
+
+I'm not sure why, but the `ansible-ec2-inventory` module seems to fail installing if its dependencies aren't installed separately, first. This can be done, as follows:
+
+    $ pip install boto six
