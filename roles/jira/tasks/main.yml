@@ -1,4 +1,10 @@
 ---
+  
+- name: Install Prerequisites
+  apt: name={{ item }} update_cache=true cache_valid_time="{{ 60 * 15 }}"
+  with_items:
+    - libpq-dev
+    - python-psycopg2
 
 - name: Create Directory '/opt/atlassian'
   file: path=/opt/atlassian state=directory
@@ -6,24 +12,39 @@
 - name: Create Directory '/opt/atlassian/jira'
   file: path=/opt/atlassian/jira state=directory
 
-- name: Response File
-  template: src=response.varfile.j2 dest=/opt/atlassian/jira/response.varfile owner=root group=root mode="u=rw,g=rw,o=r"
+- name: Check JIRA Install Status
+  stat: path=/opt/atlassian/jira/atlassian-jira/META-INF/maven/com.atlassian.jira/atlassian-jira-webapp/pom.properties
+  register: jira_pom_properties_stat
 
-- name: Download Installer
-  get_url: url=https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin dest=/opt/atlassian/jira/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin mode=0550
-  # get_url: url=https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.1.0-jira-7.1.0-x32.bin dest=/opt/atlassian/jira/atlassian-jira-software-7.1.0-jira-7.1.0-x32.bin mode=0550
+- name: Read JIRA Install Version
+  shell: cat /opt/atlassian/jira/atlassian-jira/META-INF/maven/com.atlassian.jira/atlassian-jira-webapp/pom.properties
+  changed_when: False
+  register: jira_pom_properties_cat
+  when: jira_pom_properties_stat.stat.isreg is defined and jira_pom_properties_stat.stat.isreg
 
-- name: Install Prerequisites
-  apt: name={{ item }} update_cache=true cache_valid_time="{{ 60 * 15 }}"
-  with_items:
-    - libpq-dev
-    - python-psycopg2
+- name: Parse JIRA Install Version
+  # FIXME: the line index here isn't very robust; should filter for the correct line, but not quite sure how
+  set_fact: jira_installed_version="{{ jira_pom_properties_cat.stdout_lines[2] | regex_replace('^version=', '') }}"
+  when: jira_pom_properties_cat is defined
 
-- name: Install
-  command: /opt/atlassian/jira/atlassian-jira-software-7.1.0-jira-7.1.0-x64.bin -q -varfile /opt/atlassian/jira/response.varfile
-  args:
-    chdir: /opt/atlassian/jira/
-    creates: /opt/atlassian/jira/install.reg
+- debug: msg="jira_installed_version=[{{ jira_installed_version | default('n/a') }}]"
+
+- block:
+  
+  - name: Response File
+    template: src=response.varfile.j2 dest=/opt/atlassian/jira/response.varfile owner=root group=root mode="u=rw,g=rw,o=r"
+  
+  - name: Download Installer
+    get_url: url="{{ jira_installer_url }}" dest="/opt/atlassian/{{ jira_installer_file }}" mode=0550
+  
+  - name: Install
+    command: "/opt/atlassian/{{ jira_installer_file }} -q -varfile /opt/atlassian/response.varfile"
+    args:
+      chdir: /opt/atlassian/
+    notify:
+      - Restart Service 'jira'
+  
+  when: jira_version != jira_installed_version
 
 - name: Create Database
   postgresql_db:
@@ -59,4 +80,3 @@
   template: src=server.xml.j2 dest=/opt/atlassian/jira/conf/server.xml owner=root group=root mode="u=rw,g=r,o=r"
   notify:
     - Restart Service 'jira'
-

@@ -1,4 +1,4 @@
-#install4j response file for JIRA Software 7.1.0
+#install4j response file for JIRA Software {{ jira_version }}
 #Tue Feb 16 02:08:16 UTC 2016
 # This file is managed via Ansible: https://github.com/HHSIDEAlab/hhsdevcloud-ansible
 sys.languageId=en
@@ -9,6 +9,6 @@ httpPort$Long={{ jira_port_private }}
 rmiPort$Long=8005
 app.install.service$Boolean=true
 executeLauncherAction$Boolean=true
-sys.confirmedUpdateInstallationString=false
-existingInstallationDir=/opt/JIRA Software
+sys.confirmedUpdateInstallationString={{ jira_installed_version is defined | lower }}
+existingInstallationDir=/opt/atlassian/jira
 

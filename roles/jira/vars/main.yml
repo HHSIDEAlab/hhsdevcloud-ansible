@@ -1,0 +1,4 @@
+---
+jira_version: 7.1.4
+jira_installer_file: "atlassian-jira-software-{{ jira_version }}-jira-{{ jira_version }}-x64.bin"
+jira_installer_url: "https://www.atlassian.com/software/jira/downloads/binary/{{ jira_installer_file }}"
