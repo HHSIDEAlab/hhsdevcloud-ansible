@@ -21,7 +21,7 @@ people:
     givenName: Alan
     sn: Viars
     uidAndGidNumber: 10002
-    mail: alan.viars@cms.hhs.gov
+    mail: aviars@videntity.com
     password: "{{ vault_ldap_alanviars_password }}"
   lorimaattta:
     givenName: Lori
