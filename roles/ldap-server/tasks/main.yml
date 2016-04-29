@@ -38,6 +38,7 @@
     userPassword: "{{ ldap_jira_password }}"
 
 # Create `ou=people` entries for each `people` entry (in `../vars/main.yml`).
+# Note that this module does not handles updates-- only inserts.
 - ldap_entry: 
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
@@ -65,3 +66,12 @@
     gidNumber: "{{ item.value.uidAndGidNumber }}"
   with_dict: "{{ people }}"
 
+# Update email addresses, as needed.
+- ldap_attr:
+    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
+    bind_pw: "{{ ldap_root_password }}"
+    dn: "uid={{ item.key }},ou=people,dc=hhsdevcloud,dc=us"
+    state: exact
+    name: mail
+    values: "{{ item.value.mail }}"
+  with_dict: "{{ people }}"
