@@ -45,6 +45,26 @@
   roles:
     - jira
 
+- hosts: tag_Environment_{{ env }}:&tag_Name_jenkins_master
+  name: Configure 'jenkins-master'
+  user: ubuntu
+  gather_facts: true
+  become: true
+  
+  vars:
+    jenkins_port: 8080
+    jenkins_context_path: ''
+    jenkins_admin_users:
+      - 'org.jenkinsci.plugins.GithubSecurityRealm:karlmdavis'
+      - 'hudson.security.HudsonPrivateSecurityRealm:admin'
+    jenkins_plugins_extra:
+      # Allows users to login with their GitHub accounts (via oAuth).
+      # TODO: configure security realm via script: https://wiki.jenkins-ci.org/display/JENKINS/Github+OAuth+Plugin
+      - github-oauth
+  
+  roles:
+    - ansible-jenkins2
+
 - hosts: tag_Environment_{{ env }}:&tag_Name_dev_nginx
   name: Configure 'dev-nginx'
   user: ubuntu
@@ -53,6 +73,7 @@
   
   vars:
     jira_address_private: "{{ hostvars | get_members(groups, 'tag_Name_jira') | map(attribute='ec2_private_dns_name') | list | first }}"
+    jenkins_address_private: "{{ hostvars | get_members(groups, 'tag_Name_jenkins_master') | map(attribute='ec2_private_dns_name') | list | first }}"
     dev_nginx_address_public: "{{ hostvars | get_members(groups, 'tag_Name_dev_nginx') | map(attribute='ec2_public_dns_name') | list | first }}"
   
   roles:
@@ -71,4 +92,16 @@
         # FIXME Not supported until Ansible release > 2.0.0.2
         # wait=true
       become: false
-
+    
+    - name: Route 53 - jenkins
+      local_action: route53
+        command=create
+        overwrite=true
+        zone=hhsdevcloud.us
+        record="{{ jenkins_dns }}"
+        type=CNAME
+        ttl=3600
+        value="{{ dev_nginx_address_public }}"
+        # FIXME Not supported until Ansible release > 2.0.0.2
+        # wait=true
+      become: false

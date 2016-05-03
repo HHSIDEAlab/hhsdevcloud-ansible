@@ -4,3 +4,6 @@
 # (Forked from https://bitbucket.org/psagers/ansible-ldap)
 - src: mkouhei.ldap
 
+# https://galaxy.ansible.com/karlmdavis/jenkins2/
+# Installs and configures Jenkins 2.
+- src: karlmdavis.jenkins2

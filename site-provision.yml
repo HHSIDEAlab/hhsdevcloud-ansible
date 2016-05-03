@@ -104,6 +104,27 @@
           Environment: "{{ env }}"
           CreatedBy: whoami.stdout
 
+    - name: EC2 - Provision 'jenkins-master'
+      ec2:
+        key_name: "{{ ec2_key_name }}"
+        group:
+          - default
+          - ssh-all
+          - http-all
+        # 2 vCPUs, 4 GB RAM, $0.052 / h ($38.07 / mo)
+        instance_type: t2.medium
+        image: "{{ ami_id_ubuntu }}"
+        region: "{{ region }}"
+        wait: true
+        exact_count: 1
+        count_tag:
+          Name: jenkins-master
+          Environment: "{{ env }}"
+        instance_tags:
+          Name: jenkins-master
+          Environment: "{{ env }}"
+          CreatedBy: whoami.stdout
+
     - name: EC2 - Provision 'dev-nginx'
       ec2:
         key_name: "{{ ec2_key_name }}"

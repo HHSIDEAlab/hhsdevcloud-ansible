@@ -34,3 +34,9 @@ ldap_root_password: "{{ vault_ldap_root_password }}"
 ldap_karldavis_password: "{{ vault_ldap_karldavis_password }}"
 ldap_jira_password: "{{ vault_ldap_jira_password }}"
 
+# The SMTP configuration settings to use (for Jenkins and other things).
+smtp_host: 'email-smtp.us-east-1.amazonaws.com'
+smtp_username: "{{ vault_smtp_username }}"
+smtp_password: "{{ vault_smtp_password }}"
+
+jenkins_dns: "builds{{ dns_record_suffix }}.hhsdevcloud.us"
