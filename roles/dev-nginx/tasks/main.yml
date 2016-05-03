@@ -8,15 +8,14 @@
 - name: Disable Site 'default'
   file: path=/etc/nginx/sites-enabled/default state=absent
   notify:
-    - Restart Service 'nginx'
+    - "Restart Service 'nginx'"
 
 - name: Create Site 'jira'
   template: src=jira.j2 dest=/etc/nginx/sites-available/jira owner=root group=root mode="u=rw,g=r,o=r"
   notify:
-    - Restart Service 'nginx'
+    - "Restart Service 'nginx'"
 
 - name: Enable Site 'jira'
   file: src=/etc/nginx/sites-available/jira dest=/etc/nginx/sites-enabled/jira owner=root group=root state=link
   notify:
-    - Restart Service 'nginx'
-
+    - "Restart Service 'nginx'"
