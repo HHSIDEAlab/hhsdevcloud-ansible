@@ -1,0 +1,15 @@
+---
+# Be sure to see the role dependency in `../meta/main.yml`. It does most of the 
+# work. This wrapping role just contains the customizations applied on top of 
+# it.
+
+- name: Configure Jenkins Security
+  template:
+    src: configureSecurity.groovy
+    dest: /var/lib/jenkins/init.groovy.d/configureSecurity.groovy
+    owner: jenkins
+    group: jenkins
+    mode: 0744
+  become: true
+  notify:
+    - "Restart Service 'jenkins'"

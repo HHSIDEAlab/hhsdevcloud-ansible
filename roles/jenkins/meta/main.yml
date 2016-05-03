@@ -1,0 +1,18 @@
+---
+dependencies:
+  # First, apply the "stock" Jenkins 2 role
+  # Reference: https://github.com/karlmdavis/ansible-jenkins2
+  - role: ansible-jenkins2
+    
+    # These two variables are defined in `/group_vars/all/main.yml`, because
+    # they're also referenced by the NGINX configs.
+    # jenkins_port: "{{ jenkins_port }}"
+    # jenkins_context_path: "{{ jenkins_context_path }}"
+    
+    jenkins_admin_users:
+      - 'org.jenkinsci.plugins.GithubSecurityRealm:karlmdavis'
+      - 'hudson.security.HudsonPrivateSecurityRealm:admin'
+    jenkins_plugins_extra:
+      # Allows users to login with their GitHub accounts (via oAuth).
+      # TODO: configure security realm via script: https://wiki.jenkins-ci.org/display/JENKINS/Github+OAuth+Plugin
+      - github-oauth

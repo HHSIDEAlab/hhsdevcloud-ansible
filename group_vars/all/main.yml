@@ -39,4 +39,10 @@ smtp_host: 'email-smtp.us-east-1.amazonaws.com'
 smtp_username: "{{ vault_smtp_username }}"
 smtp_password: "{{ vault_smtp_password }}"
 
+# These are used to define/determine the (unproxied) Jenkins URL.
+jenkins_port: 8080
+jenkins_context_path: ''
 jenkins_dns: "builds{{ dns_record_suffix }}.hhsdevcloud.us"
+
+# (The actual value for this is stored in vault.yml.)
+jenkins_github_oauth_client_secret: "{{ vault_jenkins_github_oauth_client_secret }}"
