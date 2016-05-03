@@ -1,8 +1,9 @@
 ---
 dependencies:
-  # First, apply the "stock" Jenkins 2 role
+
+  # Apply the "stock" Jenkins 2 role that this playbook role is wrapping.
   # Reference: https://github.com/karlmdavis/ansible-jenkins2
-  - role: ansible-jenkins2
+  - role: karlmdavis.jenkins2
     
     # These two variables are defined in `/group_vars/all/main.yml`, because
     # they're also referenced by the NGINX configs.
