@@ -1,6 +1,10 @@
 ---
 dependencies:
 
+  - role: ansiblebit.oracle-java
+    oracle_java_version: 8
+    oracle_java_set_as_default: yes
+
   # Apply the "stock" Jenkins 2 role that this playbook role is wrapping.
   # Reference: https://github.com/karlmdavis/ansible-jenkins2
   - role: karlmdavis.jenkins2
