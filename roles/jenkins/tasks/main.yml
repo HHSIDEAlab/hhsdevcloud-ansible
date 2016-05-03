@@ -13,3 +13,15 @@
   become: true
   notify:
     - "Restart Service 'jenkins'"
+
+- name: Configure Tool - Maven
+  template:
+    src: configureMaven.groovy
+    dest: /var/lib/jenkins/init.groovy.d/configureMaven.groovy
+    owner: jenkins
+    group: jenkins
+    mode: 0744
+  become: true
+  notify:
+    - "Restart Service 'jenkins'"
+    
