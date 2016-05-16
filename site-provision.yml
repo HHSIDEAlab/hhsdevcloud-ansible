@@ -115,6 +115,11 @@
         instance_type: t2.medium
         image: "{{ ami_id_ubuntu }}"
         region: "{{ region }}"
+        # This box started off life at 10G, and very quickly blew through that.
+        volumes:
+          - device_name: /dev/xvda
+            volume_type: gp2
+            volume_size: 200
         wait: true
         exact_count: 1
         count_tag:
