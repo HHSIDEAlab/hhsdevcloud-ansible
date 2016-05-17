@@ -6,8 +6,16 @@
 - name: Install Build Tools
   apt: name={{ item }} state=installed
   become: true
-  with_items:
-    - git
+  with_items: []
+
+- name: "Configure Git (and activate git-lfs)"
+  template:
+    src: gitconfig.groovy
+    dest: /var/lib/jenkins/.gitconfig
+    owner: jenkins
+    group: jenkins
+    mode: 0664
+  become: true
 
 - name: Configure Jenkins Security
   template:
