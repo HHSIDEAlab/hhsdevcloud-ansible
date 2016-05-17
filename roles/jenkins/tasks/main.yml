@@ -28,6 +28,20 @@
   notify:
     - "Restart Service 'jenkins'"
 
+# This isn't actually being used right now, but at one point, I thought it was
+# needed. Since it was a pain to create, and might be useful later, I'll leave 
+# it.
+- name: Configure Jenkins GitHub Plugin
+  template:
+    src: configureGitHub.groovy
+    dest: /var/lib/jenkins/init.groovy.d/configureGitHub.groovy
+    owner: jenkins
+    group: jenkins
+    mode: 0744
+  become: true
+  notify:
+    - "Restart Service 'jenkins'"
+
 - name: Maven - Configure Tool
   template:
     src: configureMaven.groovy
