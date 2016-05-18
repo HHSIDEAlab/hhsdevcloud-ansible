@@ -6,7 +6,11 @@
 - name: Install Build Tools
   apt: name={{ item }} state=installed
   become: true
-  with_items: []
+  with_items:
+    # Required by Maven's `maven-gpg-plugin`, which is used to sign builds (which is required by Maven Central).
+    - gpgv
+    # Not required, but useful for debugging GPG issues.
+    - gnupg2
 
 - name: "Configure Git (and activate git-lfs)"
   template:
@@ -70,3 +74,20 @@
     group: jenkins
     mode: 0644
   become: true
+
+- name: Jenkins GPG Key - Copy
+  copy:
+    dest: /var/lib/jenkins/cms-build-gpg-key-private.asc
+    content: "{{ jenkins_gpg_build_key_private }}"
+    owner: jenkins
+    group: jenkins
+    mode: 0400
+  register: copy_jenkins_gpg_build_key_private
+  become: true
+  no_log: true
+
+- name: Jenkins GPG Key - Import
+  shell: gpg --import /var/lib/jenkins/cms-build-gpg-key-private.asc
+  when: copy_jenkins_gpg_build_key_private.changed
+  become: true
+  become_user: jenkins

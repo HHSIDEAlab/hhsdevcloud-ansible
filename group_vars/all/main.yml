@@ -47,3 +47,8 @@ jenkins_dns: "builds{{ dns_record_suffix }}.hhsdevcloud.us"
 # (The actual values for these are stored in vault.yml.)
 jenkins_github_oauth_client_secret: "{{ vault_jenkins_github_oauth_client_secret }}"
 jenkins_github_token_karlmdavis: "{{ vault_jenkins_github_token_karlmdavis }}"
+
+# The "CMS BlueButton Build Server <karl.davis@cms.hhs.gov>" GPG keypair 
+# (contains the private and public keys) for Jenkins to use with 
+# maven-gpg-plugin.
+jenkins_gpg_build_key_private: "{{ vault_jenkins_gpg_build_key_private }}"
