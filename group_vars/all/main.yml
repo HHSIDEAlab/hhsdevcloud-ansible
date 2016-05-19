@@ -50,7 +50,7 @@ jenkins_github_token_karlmdavis: "{{ vault_jenkins_github_token_karlmdavis }}"
 jenkins_ossrh_username: "{{ vault_jenkins_ossrh_username }}"
 jenkins_ossrh_password: "{{ vault_jenkins_ossrh_password }}"
 
-# The "CMS BlueButton Build Server <karl.davis@cms.hhs.gov>" GPG keypair 
+# The "HHS IDEA Lab Build Server <jenkins@hhsdevcloud.us>" GPG keypair 
 # (contains the private and public keys) for Jenkins to use with 
 # maven-gpg-plugin.
 jenkins_gpg_build_key_private: "{{ vault_jenkins_gpg_build_key_private }}"
