@@ -25,3 +25,5 @@ dependencies:
       # Allows users to login with their GitHub accounts (via oAuth).
       # TODO: configure security realm via script: https://wiki.jenkins-ci.org/display/JENKINS/Github+OAuth+Plugin
       - github-oauth
+      # Provides config files to jobs, e.g. Maven settings.xml files.
+      - config-file-provider

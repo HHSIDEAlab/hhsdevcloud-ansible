@@ -57,6 +57,17 @@
   notify:
     - "Restart Service 'jenkins'"
 
+- name: Maven - settings.xml
+  template:
+    src: configureFileProvider.groovy
+    dest: /var/lib/jenkins/init.groovy.d/configureFileProvider.groovy
+    owner: jenkins
+    group: jenkins
+    mode: 0744
+  become: true
+  notify:
+    - "Restart Service 'jenkins'"
+
 - name: Maven - .m2
   file:
     path: /var/lib/jenkins/.m2
