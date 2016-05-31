@@ -47,4 +47,33 @@ people:
     uidAndGidNumber: 10006
     mail: niall.brennan@cms.hhs.gov
     password: "{{ vault_ldap_niallbrennan_password }}"
-
+  johndavis:
+    givenName: John
+    sn: Davis
+    uidAndGidNumber: 10007
+    mail: john.davis3@gdit.com
+    password: "{{ vault_ldap_johndavis_password }}"
+  scottwarren:
+    givenName: Scott
+    sn: Warren
+    uidAndGidNumber: 10008
+    mail: scott.warren@gdit.com
+    password: "{{ vault_ldap_scottwarren_password }}"
+  shaunbrockhoff:
+    givenName: Shaun
+    sn: Brockhoff
+    uidAndGidNumber: 10009
+    mail: shaun.brockhoff@gdit.com
+    password: "{{ vault_ldap_shaunbrockhoff_password }}"
+  scottkoerselman:
+    givenName: Scott
+    sn: Koerselman
+    uidAndGidNumber: 10010
+    mail: scott.koerselman@gdit.com
+    password: "{{ vault_ldap_scottkoerselman_password }}"
+  katiepandullo:
+    givenName: Katie
+    sn: Pandullo
+    uidAndGidNumber: 10011
+    mail: katie.pandullo@gdit.com
+    password: "{{ vault_ldap_katiepandullo_password }}"
