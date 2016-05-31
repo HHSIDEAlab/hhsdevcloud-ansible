@@ -21,6 +21,15 @@
     mode: 0664
   become: true
 
+- name: "Configure Git Credentials Store (for git-lfs)"
+  template:
+    src: git-credentials.groovy
+    dest: /var/lib/jenkins/.git-credentials
+    owner: jenkins
+    group: jenkins
+    mode: 0660
+  become: true
+
 - name: Configure Jenkins Security
   template:
     src: configureSecurity.groovy

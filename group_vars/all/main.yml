@@ -47,6 +47,8 @@ jenkins_dns: "builds{{ dns_record_suffix }}.hhsdevcloud.us"
 # (The actual values for these are stored in vault.yml.)
 jenkins_github_oauth_client_secret: "{{ vault_jenkins_github_oauth_client_secret }}"
 jenkins_github_token_karlmdavis: "{{ vault_jenkins_github_token_karlmdavis }}"
+jenkins_github_username: "{{ vault_jenkins_github_username }}"
+jenkins_github_password: "{{ vault_jenkins_github_password }}"
 jenkins_ossrh_username: "{{ vault_jenkins_ossrh_username }}"
 jenkins_ossrh_password: "{{ vault_jenkins_ossrh_password }}"
 
