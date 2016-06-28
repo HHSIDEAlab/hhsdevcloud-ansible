@@ -77,3 +77,63 @@ people:
     uidAndGidNumber: 10011
     mail: katie.pandullo@gdit.com
     password: "{{ vault_ldap_katiepandullo_password }}"
+  clintsmalley:
+    givenName: Clint
+    sn: Smalley
+    uidAndGidNumber: 10012
+    mail: clint.smalley@gdit.com
+    password: "{{ vault_ldap_clintsmalley_password }}"
+  sarahfeist:
+    givenName: Sarah
+    sn: Feist
+    uidAndGidNumber: 10013
+    mail: sarah.feist@gdit.com
+    password: "{{ vault_ldap_sarahfeist_password }}"
+  cynthiaweigel:
+    givenName: Cindy
+    sn: Weigel
+    uidAndGidNumber: 10014
+    mail: cynthia.weigel@gdit.com
+    password: "{{ vault_ldap_cynthiaweigel_password }}"
+  matthewzach:
+    givenName: Matthew
+    sn: Zach
+    uidAndGidNumber: 10015
+    mail: matthew.zach@gdit.com
+    password: "{{ vault_ldap_matthewzach_password }}"
+  markhuegerich:
+    givenName: Mark
+    sn: Huegerich
+    uidAndGidNumber: 10016
+    mail: mark.huegerich@gdit.com
+    password: "{{ vault_ldap_markhuegerich_password }}"
+  cassidyshay:
+    givenName: Cassidy
+    sn: Shay
+    uidAndGidNumber: 10017
+    mail: cassidy.shay@gdit.com
+    password: "{{ vault_ldap_cassidyshay_password }}"
+  kurthunt:
+    givenName: Kurt
+    sn: Hunt
+    uidAndGidNumber: 10018
+    mail: kurt.hunt@gdit.com
+    password: "{{ vault_ldap_kurthunt_password }}"
+  adamkaufman:
+    givenName: Adam
+    sn: Kaufman
+    uidAndGidNumber: 10019
+    mail: adam.kaufman@gdit.com
+    password: "{{ vault_ldap_adamkaufman_password }}"
+  mariaparedes:
+    givenName: Maria
+    sn: Paredes
+    uidAndGidNumber: 10020
+    mail: maria.paredes@gdit.com
+    password: "{{ vault_ldap_mariaparedes_password }}"
+  michaeldayton:
+    givenName: Mike
+    sn: Dayton
+    uidAndGidNumber: 10021
+    mail: michael.dayton@gdit.com
+    password: "{{ vault_ldap_michaeldayton_password }}"
