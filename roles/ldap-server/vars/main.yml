@@ -137,3 +137,15 @@ people:
     uidAndGidNumber: 10021
     mail: michael.dayton@gdit.com
     password: "{{ vault_ldap_michaeldayton_password }}"
+  marymerrick:
+    givenName: Mary
+    sn: Merrick
+    uidAndGidNumber: 10022
+    mail: mary.merrick@gdit.com
+    password: "{{ vault_ldap_marymerrick_password }}"
+  daveholdgrafer:
+    givenName: Dave
+    sn: Holdgrafer
+    uidAndGidNumber: 10023
+    mail: dave.holdgrafer@gdit.com
+    password: "{{ vault_ldap_daveholdgrafer_password }}"
