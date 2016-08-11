@@ -149,3 +149,27 @@ people:
     uidAndGidNumber: 10023
     mail: dave.holdgrafer@gdit.com
     password: "{{ vault_ldap_daveholdgrafer_password }}"
+  curtisdumas:
+    givenName: Curtis
+    sn: Dumas
+    uidAndGidNumber: 10024
+    mail: curtis.dumas@gdit.com
+    password: "{{ vault_ldap_curtisdumas_password }}"
+  akwagrembowski:
+    givenName: Akwa
+    sn: Grembowski
+    uidAndGidNumber: 10025
+    mail: akwa.grembowski@gdit.com
+    password: "{{ vault_ldap_akwagrembowski_password }}"
+  micahknutzen:
+    givenName: Micah
+    sn: Knutzen
+    uidAndGidNumber: 10026
+    mail: micah.knutzen@gdit.com
+    password: "{{ vault_ldap_micahknutzen_password }}"
+  leenavij:
+    givenName: Leena
+    sn: Vij
+    uidAndGidNumber: 10027
+    mail: leena.vij@gdit.com
+    password: "{{ vault_ldap_leenavij_password }}"
