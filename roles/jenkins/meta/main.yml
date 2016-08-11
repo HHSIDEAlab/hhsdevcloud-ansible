@@ -27,3 +27,5 @@ dependencies:
       - github-oauth
       # Provides config files to jobs, e.g. Maven settings.xml files.
       - config-file-provider
+      # Provides a more structured mechanism for storing AWS credentials.
+      - aws-credentials
