@@ -55,6 +55,17 @@
   notify:
     - "Restart Service 'jenkins'"
 
+- name: Configure Jenkins AWS Credentials
+  template:
+    src: configureAwsCredentials.groovy
+    dest: /var/lib/jenkins/init.groovy.d/configureAwsCredentials.groovy
+    owner: jenkins
+    group: jenkins
+    mode: 0744
+  become: true
+  notify:
+    - "Restart Service 'jenkins'"
+
 - name: Maven - Configure Tool
   template:
     src: configureMaven.groovy
