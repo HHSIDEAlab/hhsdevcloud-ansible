@@ -54,8 +54,8 @@ credentialsId = "aws-credentials-builds"
 createOrUpdateAwsCredentials(
 	credentialsId, 
 	"AWS credentials for HHS IDEA Lab builds.", 
-	'{{ jenkins_aws_access_key }}',
-	'{{ jenkins_aws_secret_key }}'
+	'{{ vault_jenkins_aws_access_key }}',
+	'{{ vault_jenkins_aws_secret_key }}'
 )
 
 println("Configured AWS Credentials.")
