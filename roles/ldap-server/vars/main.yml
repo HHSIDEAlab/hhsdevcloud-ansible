@@ -173,3 +173,10 @@ people:
     uidAndGidNumber: 10027
     mail: leena.vij@gdit.com
     password: "{{ vault_ldap_leenavij_password }}"
+  bengarin:
+    givenName: Ben
+    sn: Garin
+    uidAndGidNumber: 10028
+    mail: ben.garin@gdit.com
+    password: "{{ vault_ldap_bengarin_password }}"
+
