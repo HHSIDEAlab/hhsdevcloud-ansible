@@ -180,3 +180,10 @@ people:
     mail: ben.garin@gdit.com
     password: "{{ vault_ldap_bengarin_password }}"
 
+  lindseykralik:
+    givenName: Lindsey
+    sn: Kralik
+    uidAndGidNumber: 10029
+    mail: lindsey.kralik@gdit.com
+    password: "{{ vault_ldap_lindseykralik_password }}"
+
