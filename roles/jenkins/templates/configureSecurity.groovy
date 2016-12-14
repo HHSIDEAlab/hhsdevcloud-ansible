@@ -49,7 +49,7 @@ if(!github_realm.equals(Jenkins.instance.getSecurityRealm())) {
 // Admin User Names
 String adminUserNames = 'karlmdavis'
 // Participant in Organization
-String organizationNames = 'HHSIDEALab'
+String organizationNames = 'HHSIDEAlab'
 // Use Github repository permissions
 boolean useRepositoryPermissions = true
 // Grant READ permissions to all Authenticated Users
