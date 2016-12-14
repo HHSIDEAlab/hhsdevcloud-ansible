@@ -76,7 +76,7 @@ settingsConfigNew = new org.jenkinsci.plugins.configfiles.maven.MavenSettingsCon
 	settingsConfigTemplate.content,
 	true,
 	[new org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping("ossrh", credentialsId)]
-) 
+)
 
 // Update or create the config file.
 if(settingsConfig != null) {
