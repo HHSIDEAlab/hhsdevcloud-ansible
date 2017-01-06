@@ -25,7 +25,7 @@
 - name: Parse JIRA Install Version
   # FIXME: the line index here isn't very robust; should filter for the correct line, but not quite sure how
   set_fact: jira_installed_version="{{ jira_pom_properties_cat.stdout_lines[2] | regex_replace('^version=', '') }}"
-  when: jira_pom_properties_cat is defined
+  when: jira_pom_properties_stat.stat.isreg is defined and jira_pom_properties_stat.stat.isreg
 
 - debug: msg="jira_installed_version=[{{ jira_installed_version | default('n/a') }}]"
 
@@ -35,16 +35,18 @@
     template: src=response.varfile.j2 dest=/opt/atlassian/jira/response.varfile owner=root group=root mode="u=rw,g=rw,o=r"
   
   - name: Download Installer
-    get_url: url="{{ jira_installer_url }}" dest="/opt/atlassian/{{ jira_installer_file }}" mode=0550
+    # Using the custom wget_file module instead, due to https://github.com/ansible/ansible/issues/18528 (or something similar).
+    #get_url: url="{{ jira_installer_url }}" dest="/opt/atlassian/{{ jira_installer_file }}" mode=0550
+    wget_file: url="{{ jira_installer_url }}" dest="/opt/atlassian/{{ jira_installer_file }}" mode=0550
   
   - name: Install
-    command: "/opt/atlassian/{{ jira_installer_file }} -q -varfile /opt/atlassian/response.varfile"
+    command: "/opt/atlassian/{{ jira_installer_file }} -q -varfile /opt/atlassian/jira/response.varfile"
     args:
       chdir: /opt/atlassian/
     notify:
       - Restart Service 'jira'
   
-  when: jira_version != jira_installed_version
+  when: jira_version != (jira_installed_version | default('n/a'))
 
 - name: Create Database
   postgresql_db:

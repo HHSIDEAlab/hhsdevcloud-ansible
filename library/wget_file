@@ -1,0 +1,65 @@
+#!/usr/bin/python
+
+# Import these core modules (no need for try-except).
+import os
+import subprocess
+
+DOCUMENTATION = '''
+---
+module: wget_file
+short_description: Uses wget to write out the contents of a URL to a file.
+'''
+
+def main():
+    # This `module` variable will end up with fields for each of the specified args, with the values specified 
+    # for this execution of the task.
+    module = AnsibleModule(
+        argument_spec = dict(
+            url=dict(required=True),
+            dest=dict(required=True),
+        ),
+        supports_check_mode=True,
+        add_file_common_args=True,
+    )
+
+    url = module.params['url']
+    dest = module.params['dest']
+
+    if os.path.isdir(dest):
+        module.fail_json(msg='The dest path may not be a directory.')
+
+    if module.check_mode:
+        module.exit_json(changed=os.path.exists(dest))
+
+    changed = False
+
+    if not os.path.exists(dest):
+        changed = True
+        try:
+            wget_cmd = [
+                '/usr/bin/wget',
+                '--output-document=' + dest,
+                url,
+            ]
+            wget_code = subprocess.call(wget_cmd)
+            if wget_code < 0:
+                module.fail_json(msg='The call to wget failed.', wget_code=wget_code)
+        except OSError as e:
+            module.fail_json(msg='Unable to call wget.', error_number=e.errno, error_message=e.strerror)
+
+        if not os.path.exists(dest):
+            module.fail_json(msg='The file was not created as expected.', url=url, dest=dest)
+
+    # The file is present, so now adjust its attributes if needed.
+    module.params['path'] = dest
+    file_args = module.load_file_common_arguments(module.params)
+    file_args['path'] = dest
+    changed = module.set_fs_attributes_if_different(file_args, changed)
+
+    module.exit_json(changed=True)
+
+# Required for all Ansible modules.
+from ansible.module_utils.basic import AnsibleModule
+if __name__ == '__main__':
+    main()
+
