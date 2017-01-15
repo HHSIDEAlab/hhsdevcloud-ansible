@@ -17,6 +17,9 @@ dependencies:
     # they're also referenced by the NGINX configs.
     # jenkins_port: "{{ jenkins_port }}"
     # jenkins_context_path: "{{ jenkins_context_path }}"
+
+    # Ensure that Jenkins knows the URL that it's being proxied from via nginx.
+    jenkins_url_external: "http://{{ jenkins_dns }}"
     
     jenkins_admin_users:
       - 'org.jenkinsci.plugins.GithubSecurityRealm:karlmdavis'

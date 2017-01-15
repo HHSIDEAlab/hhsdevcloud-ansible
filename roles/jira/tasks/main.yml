@@ -50,7 +50,7 @@
 
 - name: Create Database
   postgresql_db:
-    login_host="{{ rds_postgres_dev_address }}"
+    login_host="{{ hostvars['postgres-dev']['endpoint'] }}"
     login_user="{{ postgres_dev_master_username }}"
     login_password="{{ postgres_dev_master_password }}"
     name=jira
@@ -62,7 +62,7 @@
 
 - name: Create Database User
   postgresql_user:
-    login_host="{{ rds_postgres_dev_address }}"
+    login_host="{{ hostvars['postgres-dev']['endpoint'] }}"
     login_user="{{ postgres_dev_master_username }}"
     login_password="{{ postgres_dev_master_password }}"
     db=jira

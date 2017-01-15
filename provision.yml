@@ -2,7 +2,9 @@
 # This playbook provisions the AWS resources for the HHS Dev Cloud's 
 # development infrastructure.
 #
-# Usage: This playbook should be included from `site.yml`.
+# Usage: This playbook should be run as follows:
+#
+#     $ ansible-playbook provision.yml --extra-vars "provisioned_inventory={ hosts_test | hosts_productions } ec2_key_name=hhs-dev-karlmdavis env=test" 
 
 - hosts: localhost
   name: AWS - Provision Resources and Instances
@@ -10,6 +12,13 @@
   gather_facts: false
   
   tasks:
+
+    # Go boom if the test inventory is already present.
+    - stat: path="{{ provisioned_inventory }}"
+      register: stat_inventory
+    - fail:
+        msg: "Inventory file already exists: {{ provisioned_inventory }}"
+      when: stat_inventory.stat.exists
     
     - name: Local - whoami
       local_action: command whoami
@@ -60,6 +69,15 @@
           CreatedBy: whoami.stdout
         wait: true
         wait_timeout: 900
+      register: rds_dev
+    
+    - name: RDS - Add Instance to Inventory
+      lineinfile:
+        dest: "{{ provisioned_inventory }}"
+        regexp: "^postgres-dev .*$"
+        line: "postgres-dev rds_instance_name={{ postgres_dev_instance_name }} endpoint={{ rds_dev.instance.endpoint }} port={{ rds_dev.instance.port }}"
+        state: present
+        create: true
 
     - name: EC2 - Provision 'ldap'
       ec2:
@@ -79,6 +97,15 @@
           Name: ldap
           Environment: "{{ env }}"
           CreatedBy: whoami.stdout
+      register: ec2_ldap
+    
+    - name: EC2 - Add 'ldap' to Inventory
+      lineinfile:
+        dest: "{{ provisioned_inventory }}"
+        regexp: '^ldap .*$'
+        line: "ldap ansible_host={{ ec2_ldap.instances[0].public_dns_name }} ec2_instance_id={{ ec2_ldap.instance_ids[0] }} ec2_private_dns_name={{ ec2_ldap.instances[0].private_dns_name }} ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7"
+        state: present
+        create: true
 
     - name: EC2 - Provision 'jira'
       ec2:
@@ -103,6 +130,15 @@
           Name: jira
           Environment: "{{ env }}"
           CreatedBy: whoami.stdout
+      register: ec2_jira
+    
+    - name: EC2 - Add 'jira' to Inventory
+      lineinfile:
+        dest: "{{ provisioned_inventory }}"
+        regexp: '^jira .*$'
+        line: "jira ansible_host={{ ec2_jira.instances[0].public_dns_name }} ec2_instance_id={{ ec2_jira.instance_ids[0] }} ec2_private_dns_name={{ ec2_jira.instances[0].private_dns_name }} ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7"
+        state: present
+        create: true
 
     - name: EC2 - Provision 'jenkins-master'
       ec2:
@@ -129,8 +165,17 @@
           Name: jenkins-master
           Environment: "{{ env }}"
           CreatedBy: whoami.stdout
+      register: ec2_jenkins_master
+    
+    - name: EC2 - Add 'jenkins-master' to Inventory
+      lineinfile:
+        dest: "{{ provisioned_inventory }}"
+        regexp: '^jenkins-master .*$'
+        line: "jenkins-master ansible_host={{ ec2_jenkins_master.instances[0].public_dns_name }} ec2_instance_id={{ ec2_jenkins_master.instance_ids[0] }} ec2_private_dns_name={{ ec2_jenkins_master.instances[0].private_dns_name }} ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7"
+        state: present
+        create: true
 
-    - name: EC2 - Provision 'dev-nginx'
+    - name: EC2 - Provision 'nginx-dev'
       ec2:
         key_name: "{{ ec2_key_name }}"
         group:
@@ -143,29 +188,36 @@
         wait: true
         exact_count: 1
         count_tag:
-          Name: dev-nginx
+          Name: nginx-dev
           Environment: "{{ env }}"
         instance_tags:
-          Name: dev-nginx
+          Name: nginx-dev
           Environment: "{{ env }}"
           CreatedBy: whoami.stdout
+      register: ec2_nginx_dev
     
-    # This task won't print anything out but can take a few minutes. That 
-    # may make the previous task look like it's taking awhile. Oh well.
-    # Note: Must set 'cache_max_age = 0' in ec2.ini for this to actually work.
-    # Note: It'd be great if this could be run as a handler, so it's only run
-    # when needed, but it can't (for some reason).
-    # TODO: File Ansible issue: calling this in any play wipes out all EC2 facts in inventory
-    - name: Inventory - Refresh
-      meta: refresh_inventory
-
-- hosts: tag_Environment_{{ env }}
-  name: AWS - Wait for SSH
-  connection: local
-  gather_facts: true
-  
-  tasks:
-  
-    - name: EC2 - Wait for SSH
-      wait_for: host={{ inventory_hostname }} search_regex=OpenSSH port=22 state=started
+    - name: EC2 - Add 'nginx-dev' to Inventory
+      lineinfile:
+        dest: "{{ provisioned_inventory }}"
+        regexp: '^nginx-dev .*$'
+        line: "nginx-dev ansible_host={{ ec2_nginx_dev.instances[0].public_dns_name }} ec2_instance_id={{ ec2_nginx_dev.instance_ids[0] }} ec2_public_dns_name={{ ec2_nginx_dev.instances[0].public_dns_name }} ec2_private_dns_name={{ ec2_nginx_dev.instances[0].private_dns_name }} ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7"
+        state: present
+        create: true
+    
+    - name: Wait for SSH to come up
+      wait_for:
+        host: "{{ item.public_dns_name }}"
+        port: 22
+        search_regex: OpenSSH
+        state: started
+        # This delay seems to be necessary for the last newly-provisioned 
+        # instance. SSH is up for it, but it's not immediately configured to 
+        # accept the SSH key.
+        delay: 30
+        timeout: 320
+      with_flattened:
+        - "{{ ec2_ldap.instances }}"
+        - "{{ ec2_jira.instances }}"
+        - "{{ ec2_jenkins_master.instances }}"
+        - "{{ ec2_nginx_dev.instances }}"
 

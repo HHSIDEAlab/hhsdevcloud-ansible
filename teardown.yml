@@ -1,0 +1,76 @@
+---
+# PERMANENTLY DESTROYS all AWS resources. Completely, 100% non-recoverable. 
+# Use only with caution!
+#
+# Usage:
+#  
+#     $ ansible-playbook --inventory-file={ hosts_test | hosts_production } teardown.yml
+
+- name: EC2 - Terminate Instances
+  hosts: nginx-dev:jenkins-master:jira:ldap
+  connection: local
+  gather_facts: false
+ 
+  vars:
+    - ansible_python_interpreter: python
+ 
+  tasks:
+    
+    # Disabled due to spam, but can be used to log all inventory data about 
+    # each instance being terminated:
+    # - debug: var=hostvars[inventory_hostname]
+    
+    - name: Terminate Instance
+      ec2:
+        state: 'absent'
+        instance_ids: "{{ hostvars[inventory_hostname]['ec2_instance_id'] }}"
+        region: "{{ region }}"
+      register: ec2_terminate
+    
+    - name: Remove Instance from Inventory
+      lineinfile:
+        dest: "{{ inventory_file }}"
+        regexp: "^{{ inventory_hostname }} .*$"
+        state: absent
+      when: ec2_terminate|succeeded
+ 
+- name: RDS - Terminate Instances
+  hosts: postgres-dev
+  connection: local
+  gather_facts: false
+
+  vars:
+    - ansible_python_interpreter: python
+ 
+  tasks:
+    
+    # Disabled due to spam, but can be used to log all inventory data about 
+    # each instance being terminated:
+    # - debug: var=hostvars[inventory_hostname]
+
+    - name: Terminate Instance
+      rds:
+        command: delete
+        instance_name: "{{ hostvars[inventory_hostname]['rds_instance_name'] }}"
+        region: "{{ region }}"
+        wait: true
+      register: rds_terminate
+    
+    - name: Remove Instance from Inventory
+      lineinfile:
+        dest: "{{ inventory_file }}"
+        regexp: "^{{ inventory_hostname }} .*$"
+        state: absent
+      when: rds_terminate|succeeded
+
+- name: Remove Inventory File
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+
+    - file:
+        path: "{{ inventory_file }}"
+        state: absent
+

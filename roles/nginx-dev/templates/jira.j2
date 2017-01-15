@@ -11,15 +11,20 @@
 # Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
 ##
 
+# Note: Once we add SSL support here, some additional config is needed here and in JIRA's Tomcat:
+# * https://confluence.atlassian.com/display/JIRAKB/Integrating+JIRA+with+Nginx
+# * https://confluence.atlassian.com/jira/integrating-jira-with-apache-using-ssl-203395380.html
+
 server {
 	listen 80;
-	server_name {{ jenkins_dns }};
+	server_name {{ jira_dns }};
 
 	location / {
 		proxy_set_header X-Forwarded-Host $host;
 		proxy_set_header X-Forwarded-Server $host;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-		proxy_pass http://{{ jenkins_address_private }}:{{ jenkins_port }};
+		proxy_pass http://{{ hostvars['jira']['ec2_private_dns_name'] }}:{{ jira_port_private }};
 		client_max_body_size 10M;
 	}
 }
+

@@ -25,12 +25,16 @@ def createOrUpdateAwsCredentials = { id, description, accessKey, secretKey ->
 	)
 	
 	matchingSecret = secrets.find { secret -> secret.id == id }
+	iamRoleArn = ""
+	iamMfaSerialNumber = ""
 	newSecret = new com.cloudbees.jenkins.plugins.awscredentials.AWSCredentialsImpl(
 		com.cloudbees.plugins.credentials.CredentialsScope.GLOBAL,
 		id,
 		accessKey,
 		secretKey,
-		description
+		description,
+		iamRoleArn,
+		iamMfaSerialNumber
 	)
 	
 	if (matchingSecret) {

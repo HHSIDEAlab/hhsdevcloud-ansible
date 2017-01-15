@@ -8,7 +8,7 @@
   <database-type>postgres72</database-type>
   <schema-name>public</schema-name>
   <jdbc-datasource>
-    <url>jdbc:postgresql://{{ rds_postgres_dev_address }}:{{ rds_postgres_dev_port }}/jira</url>
+    <url>jdbc:postgresql://{{ hostvars['postgres-dev']['endpoint'] }}:{{ hostvars['postgres-dev']['port'] }}/jira</url>
     <driver-class>org.postgresql.Driver</driver-class>
     <username>{{ jira_db_username }}</username>
     <password>{{ jira_db_password }}</password>

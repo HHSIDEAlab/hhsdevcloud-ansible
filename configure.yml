@@ -1,0 +1,82 @@
+---
+# This playbook configures the AWS resources for the HHS Dev Cloud's 
+# development infrastructure.
+#
+#
+# Usage: This playbook should be run as follows:
+#
+#     $ ansible-playbook configure.yml --inventory-file={ hosts_test | hosts_productions }
+
+- hosts: ldap
+  name: Configure 'ldap'
+  user: ubuntu
+  gather_facts: true
+  become: true
+  
+  roles:
+    - ldap-server
+  
+  tasks:
+    - name: Route 53 - ldap
+      local_action: route53
+        command=create
+        overwrite=true
+        zone=hhsdevcloud.us
+        record="{{ ldap_dns }}"
+        type=CNAME
+        ttl=3600
+        value="{{ hostvars['ldap']['ec2_private_dns_name'] }}"
+        wait=true
+      become: false
+
+- hosts: jira
+  name: Configure 'jira'
+  user: ubuntu
+  gather_facts: true
+  become: true
+  
+  roles:
+    - jira
+
+- hosts: jenkins-master
+  name: Configure 'jenkins-master'
+  user: ubuntu
+  gather_facts: true
+  become: true
+  
+  roles:
+    - jenkins
+
+- hosts: nginx-dev
+  name: Configure 'nginx-dev'
+  user: ubuntu
+  gather_facts: true
+  become: true
+  
+  roles:
+    - nginx-dev
+  
+  tasks:
+    - name: Route 53 - issues
+      local_action: route53
+        command=create
+        overwrite=true
+        zone=hhsdevcloud.us
+        record="{{ jira_dns }}"
+        type=CNAME
+        ttl=3600
+        value="{{ hostvars['nginx-dev']['ec2_public_dns_name'] }}"
+        wait=true
+      become: false
+    
+    - name: Route 53 - jenkins
+      local_action: route53
+        command=create
+        overwrite=true
+        zone=hhsdevcloud.us
+        record="{{ jenkins_dns }}"
+        type=CNAME
+        ttl=3600
+        value="{{ hostvars['nginx-dev']['ec2_public_dns_name'] }}"
+        wait=true
+      become: false
