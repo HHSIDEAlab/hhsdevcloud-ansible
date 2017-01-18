@@ -27,7 +27,7 @@ people:
     givenName: Lori
     sn: Maatta
     uidAndGidNumber: 10003
-    mail: lori.maata@cms.hhs.gov
+    mail: lori.maatta@cms.hhs.gov
     password: "{{ vault_ldap_lorimaatta_password }}"
   carlymedosch:
     givenName: Carly
