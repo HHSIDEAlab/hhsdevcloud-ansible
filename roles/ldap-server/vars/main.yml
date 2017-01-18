@@ -191,3 +191,16 @@ people:
     uidAndGidNumber: 10030
     mail: abdul.aleem@gdit.com
     password: "{{ vault_ldap_abdulaleem_password }}"
+  jeffdoke:
+    givenName: Jeff
+    sn: Doke
+    uidAndGidNumber: 10031
+    mail: jeff.doke@gdit.com
+    password: "{{ vault_ldap_jeffdoke_password }}"
+  mattsorenson:
+    givenName: Matt
+    sn: Sorenson
+    uidAndGidNumber: 10032
+    mail: matt.sorenson@gdit.com
+    password: "{{ vault_ldap_mattsorenson_password }}"
+
