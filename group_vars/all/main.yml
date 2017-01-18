@@ -5,8 +5,11 @@
 
 region: us-east-1
 
-# Ubuntu 14.04 (Trusty)
-ami_id_ubuntu: ami-d05e75b8
+# Ubuntu 14.04 (Trusty), per https://cloud-images.ubuntu.com/locator/ec2/
+ami_id_ubuntu_14: ami-d05e75b8 
+
+# Ubuntu Xenial 16.04, released 2016-12-21, instance type of hvm:ebs-ssd, per https://cloud-images.ubuntu.com/locator/ec2/
+ami_id_ubuntu_16: ami-9dcfdb8a
 
 # If `env` is not `production`, we prefix all DNS records with `-{{ env }}`,
 # in order to prevent dev/test DNS records from colliding with production ones.

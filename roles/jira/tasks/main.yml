@@ -6,11 +6,15 @@
     - libpq-dev
     - python-psycopg2
 
-- name: Create Directory '/opt/atlassian'
-  file: path=/opt/atlassian state=directory
-
-- name: Create Directory '/opt/atlassian/jira'
-  file: path=/opt/atlassian/jira state=directory
+- name: Create JIRA Directories
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: u=rwx,g=rwx,o=rx
+  with_items:
+    - { path: '/opt/atlassian', owner: 'root' }
 
 - name: Check JIRA Install Status
   stat: path=/opt/atlassian/jira/atlassian-jira/META-INF/maven/com.atlassian.jira/atlassian-jira-webapp/pom.properties
@@ -32,17 +36,31 @@
 - block:
   
   - name: Response File
-    template: src=response.varfile.j2 dest=/opt/atlassian/jira/response.varfile owner=root group=root mode="u=rw,g=rw,o=r"
+    template: src=response.varfile.j2 dest=/opt/atlassian/jira-response.varfile owner=root group=root mode="u=rw,g=rw,o=r"
   
   - name: Download Installer
     # Using the custom wget_file module instead, due to https://github.com/ansible/ansible/issues/18528 (or something similar).
     #get_url: url="{{ jira_installer_url }}" dest="/opt/atlassian/{{ jira_installer_file }}" mode=0550
-    wget_file: url="{{ jira_installer_url }}" dest="/opt/atlassian/{{ jira_installer_file }}" mode=0550
+    wget_file: url="{{ jira_installer_url }}" dest="/opt/atlassian/{{ jira_installer_file }}" mode=0555
   
   - name: Install
-    command: "/opt/atlassian/{{ jira_installer_file }} -q -varfile /opt/atlassian/jira/response.varfile"
+    command: "/opt/atlassian/{{ jira_installer_file }} -q -varfile /opt/atlassian/jira-response.varfile"
     args:
       chdir: /opt/atlassian/
+
+  - name: Stop JIRA (Workaround JIRA Installer Bug JRA-47727)
+    command: pkill -u jira java
+
+  - name: Create Additional JIRA Directories (Workaround JIRA Installer Bug JRA-47727)
+    file:
+      path: "{{ item.path }}"
+      state: directory
+      owner: "{{ item.owner }}"
+      group: "{{ item.owner }}"
+      mode: u=rwx,g=rwx,o=rx
+    with_items:
+     - { path: '/opt/atlassian/jira/conf/Catalina', owner: 'jira' }
+     - { path: '/opt/atlassian/jira/conf/Catalina/localhost', owner: 'jira' }
     notify:
       - Restart Service 'jira'
   
@@ -82,3 +100,4 @@
   template: src=server.xml.j2 dest=/opt/atlassian/jira/conf/server.xml owner=root group=root mode="u=rw,g=r,o=r"
   notify:
     - Restart Service 'jira'
+

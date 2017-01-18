@@ -12,13 +12,6 @@
   gather_facts: false
   
   tasks:
-
-    # Go boom if the test inventory is already present.
-    - stat: path="{{ provisioned_inventory }}"
-      register: stat_inventory
-    - fail:
-        msg: "Inventory file already exists: {{ provisioned_inventory }}"
-      when: stat_inventory.stat.exists
     
     - name: Local - whoami
       local_action: command whoami
@@ -86,8 +79,13 @@
           - default
           - ssh-all
         instance_type: t2.micro
-        image: "{{ ami_id_ubuntu }}"
+        image: "{{ ami_id_ubuntu_16 }}"
         region: "{{ region }}"
+        user_data: |
+                   #!/bin/sh
+                   # Ansible 2.2 only (officially) supports Python 2.7, while Ubuntu 16 has Python 3.x by default.
+                   sudo apt-get update
+                   sudo apt-get install --assume-yes python2.7
         wait: true
         exact_count: 1
         count_tag:
@@ -106,6 +104,7 @@
         line: "ldap ansible_host={{ ec2_ldap.instances[0].public_dns_name }} ec2_instance_id={{ ec2_ldap.instance_ids[0] }} ec2_private_dns_name={{ ec2_ldap.instances[0].private_dns_name }} ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7"
         state: present
         create: true
+      when: ec2_ldap.changed
 
     - name: EC2 - Provision 'jira'
       ec2:
@@ -119,8 +118,13 @@
         # This instance type has 2 vCPUs and 4GB RAM
         instance_type: t2.medium
 
-        image: "{{ ami_id_ubuntu }}"
+        image: "{{ ami_id_ubuntu_16 }}"
         region: "{{ region }}"
+        user_data: |
+                   #!/bin/sh
+                   # Ansible 2.2 only (officially) supports Python 2.7, while Ubuntu 16 has Python 3.x by default.
+                   sudo apt-get update
+                   sudo apt-get install --assume-yes python2.7
         wait: true
         exact_count: 1
         count_tag:
@@ -139,6 +143,7 @@
         line: "jira ansible_host={{ ec2_jira.instances[0].public_dns_name }} ec2_instance_id={{ ec2_jira.instance_ids[0] }} ec2_private_dns_name={{ ec2_jira.instances[0].private_dns_name }} ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7"
         state: present
         create: true
+      when: ec2_jira.changed
 
     - name: EC2 - Provision 'jenkins-master'
       ec2:
@@ -149,13 +154,18 @@
           - http-all
         # 2 vCPUs, 4 GB RAM, $0.052 / h ($38.07 / mo)
         instance_type: t2.medium
-        image: "{{ ami_id_ubuntu }}"
+        image: "{{ ami_id_ubuntu_16 }}"
         region: "{{ region }}"
         # This box started off life at 10G, and very quickly blew through that.
         volumes:
           - device_name: /dev/xvda
             volume_type: gp2
             volume_size: 200
+        user_data: |
+                   #!/bin/sh
+                   # Ansible 2.2 only (officially) supports Python 2.7, while Ubuntu 16 has Python 3.x by default.
+                   sudo apt-get update
+                   sudo apt-get install --assume-yes python2.7
         wait: true
         exact_count: 1
         count_tag:
@@ -174,6 +184,7 @@
         line: "jenkins-master ansible_host={{ ec2_jenkins_master.instances[0].public_dns_name }} ec2_instance_id={{ ec2_jenkins_master.instance_ids[0] }} ec2_private_dns_name={{ ec2_jenkins_master.instances[0].private_dns_name }} ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7"
         state: present
         create: true
+      when: ec2_jenkins_master.changed
 
     - name: EC2 - Provision 'nginx-dev'
       ec2:
@@ -183,8 +194,13 @@
           - ssh-all
           - http-all
         instance_type: t2.micro
-        image: "{{ ami_id_ubuntu }}"
+        image: "{{ ami_id_ubuntu_16 }}"
         region: "{{ region }}"
+        user_data: |
+                   #!/bin/sh
+                   # Ansible 2.2 only (officially) supports Python 2.7, while Ubuntu 16 has Python 3.x by default.
+                   sudo apt-get update
+                   sudo apt-get install --assume-yes python2.7
         wait: true
         exact_count: 1
         count_tag:
@@ -203,6 +219,7 @@
         line: "nginx-dev ansible_host={{ ec2_nginx_dev.instances[0].public_dns_name }} ec2_instance_id={{ ec2_nginx_dev.instance_ids[0] }} ec2_public_dns_name={{ ec2_nginx_dev.instances[0].public_dns_name }} ec2_private_dns_name={{ ec2_nginx_dev.instances[0].private_dns_name }} ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7"
         state: present
         create: true
+      when: ec2_nginx_dev.changed
     
     - name: Wait for SSH to come up
       wait_for:
