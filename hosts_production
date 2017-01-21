@@ -1,0 +1,5 @@
+postgres-dev rds_instance_name=postgres-dev-production endpoint=postgres-dev-production.cccekphclb8m.us-east-1.rds.amazonaws.com port=5432
+ldap ansible_host=ec2-54-81-2-150.compute-1.amazonaws.com ec2_instance_id=i-0babe047e1ff2666d ec2_private_dns_name=ip-172-31-29-4.ec2.internal ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7
+jira ansible_host=ec2-54-82-246-162.compute-1.amazonaws.com ec2_instance_id=i-07550f31fa7eefabd ec2_private_dns_name=ip-172-31-48-7.ec2.internal ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7
+jenkins-master ansible_host=ec2-54-84-72-160.compute-1.amazonaws.com ec2_instance_id=i-09e612232e1c06bfe ec2_private_dns_name=ip-172-31-48-113.ec2.internal ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7
+nginx-dev ansible_host=ec2-54-157-209-68.compute-1.amazonaws.com ec2_instance_id=i-0a728349b0079f5dc ec2_public_dns_name=ec2-54-157-209-68.compute-1.amazonaws.com ec2_private_dns_name=ip-172-31-21-86.ec2.internal ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python2.7
