@@ -59,7 +59,7 @@
         tags:
           # Note: See https://github.com/ansible/ansible/issues/14464
           Environment: "{{ env }}"
-          CreatedBy: whoami.stdout
+          CreatedBy: "{{ whoami.stdout }}"
         wait: true
         wait_timeout: 900
       register: rds_dev
@@ -94,7 +94,7 @@
         instance_tags:
           Name: ldap
           Environment: "{{ env }}"
-          CreatedBy: whoami.stdout
+          CreatedBy: "{{ whoami.stdout }}"
       register: ec2_ldap
     
     - name: EC2 - Add 'ldap' to Inventory
@@ -133,7 +133,7 @@
         instance_tags:
           Name: jira
           Environment: "{{ env }}"
-          CreatedBy: whoami.stdout
+          CreatedBy: "{{ whoami.stdout }}"
       register: ec2_jira
     
     - name: EC2 - Add 'jira' to Inventory
@@ -174,7 +174,7 @@
         instance_tags:
           Name: jenkins-master
           Environment: "{{ env }}"
-          CreatedBy: whoami.stdout
+          CreatedBy: "{{ whoami.stdout }}"
       register: ec2_jenkins_master
     
     - name: EC2 - Add 'jenkins-master' to Inventory
@@ -209,7 +209,7 @@
         instance_tags:
           Name: nginx-dev
           Environment: "{{ env }}"
-          CreatedBy: whoami.stdout
+          CreatedBy: "{{ whoami.stdout }}"
       register: ec2_nginx_dev
     
     - name: EC2 - Add 'nginx-dev' to Inventory
