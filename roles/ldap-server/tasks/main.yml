@@ -1,35 +1,38 @@
 ---
 
-- debconf: name=slapd question='slapd/domain' value='hhsdevcloud.us' vtype='string'
-- debconf: name=slapd question='shared/organization' value='HHS IDEA Lab' vtype='string'
-- debconf: name=slapd question='slapd/backend' value='HDB' vtype='string'
-- debconf: name=slapd question='slapd/password1' value="{{ ldap_root_password }}" vtype='password'
-- debconf: name=slapd question='slapd/password2' value="{{ ldap_root_password }}" vtype='password'
+- name: Create debconf Config Entries for OpenLDAP
+  debconf:
+    name: slapd
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.vtype }}"
+  with_items:
+    - { question: 'slapd/domain', value: 'hhsdevcloud.us', vtype: 'string' }
+    - { question: 'shared/organization', value: 'HHS IDEA Lab', vtype: 'string' }
+    - { question: 'slapd/backend', value: 'HDB', vtype: 'string' }
+    - { question: 'slapd/password1', value: "{{ ldap_root_password }}", vtype: 'password' }
+    - { question: 'slapd/password2', value: "{{ ldap_root_password }}", vtype: 'password' }
 
-- name: Install
+- name: Install OpenLDAP and Friends
   apt: name={{ item }} update_cache=true cache_valid_time="{{ 60 * 15 }}"
   with_items:
     - slapd
     - db-util
     - python-ldap
 
-- ldap_entry: 
+- name: Create Directory OUs
+  ldap_entry: 
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
-    dn: 'ou=people,dc=hhsdevcloud,dc=us'
-    objectClass: ['organizationalUnit']
-- ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
-    dn: 'ou=groups,dc=hhsdevcloud,dc=us'
-    objectClass: ['organizationalUnit']
-- ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
-    dn: 'ou=services,dc=hhsdevcloud,dc=us'
-    objectClass: ['organizationalUnit']
+    dn: "{{ item.dn }}"
+    objectClass: "{{ item.objectClass }}"
+  with_items:
+    - { dn: 'ou=people,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
+    - { dn: 'ou=groups,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
+    - { dn: 'ou=services,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
 
-- ldap_entry: 
+- name: Create JIRA Service User
+  ldap_entry: 
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
     dn: 'cn=jira,ou=services,dc=hhsdevcloud,dc=us' 
@@ -39,7 +42,8 @@
 
 # Create `ou=people` entries for each `people` entry (in `../vars/main.yml`).
 # Note that this module does not handles updates-- only inserts.
-- ldap_entry: 
+- name: Create User Accounts
+  ldap_entry: 
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
     dn: "uid={{ item.key }},ou=people,dc=hhsdevcloud,dc=us"
@@ -57,7 +61,8 @@
     mail: "{{ item.value.mail }}"
   with_dict: "{{ people }}"
 # Create `ou=groups` entries for each `people` entry (in `../vars/main.yml`).
-- ldap_entry:
+- name: Create User Groups
+  ldap_entry:
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
     dn: "cn={{ item.key }},ou=groups,dc=hhsdevcloud,dc=us"
@@ -67,7 +72,8 @@
   with_dict: "{{ people }}"
 
 # Update email addresses, as needed.
-- ldap_attr:
+- name: Update User Account Emails
+  ldap_attr:
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
     dn: "uid={{ item.key }},ou=people,dc=hhsdevcloud,dc=us"
