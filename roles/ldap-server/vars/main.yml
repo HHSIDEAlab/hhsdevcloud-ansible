@@ -1,224 +1,194 @@
 ---
-#
+##
 # Variables here are applicable to the `ldap_server` role.
-#
+##
 
 # Define all of the staff user+group entries to be created.
+# Note: Initial passwords for these users are stored in
+# `roles/ldap_server/vars/vault.yml`.
 people:
   karldavis:
     givenName: Karl
     sn: Davis
     uidAndGidNumber: 10000
     mail: karl.davis@cms.hhs.gov
-    password: "{{ vault_ldap_karldavis_password }}"
   markscrimshire:
     givenName: Mark
     sn: Scrimshire
     uidAndGidNumber: 10001
     mail: mark.scrimshire@cms.hhs.gov
-    password: "{{ vault_ldap_markscrimshire_password }}"
   alanviars:
     givenName: Alan
     sn: Viars
     uidAndGidNumber: 10002
     mail: aviars@videntity.com
-    password: "{{ vault_ldap_alanviars_password }}"
-  lorimaattta:
+  lorimaatta:
     givenName: Lori
     sn: Maatta
     uidAndGidNumber: 10003
     mail: lori.maatta@cms.hhs.gov
-    password: "{{ vault_ldap_lorimaatta_password }}"
   carlymedosch:
     givenName: Carly
     sn: Medosch
     uidAndGidNumber: 10004
     mail: carly.medosch@cms.hhs.gov
-    password: "{{ vault_ldap_carlymedosch_password }}"
   christinecox:
     givenName: Christine
     sn: Cox
     uidAndGidNumber: 10005
     mail: christine.cox@cms.hhs.gov
-    password: "{{ vault_ldap_christinecox_password }}"
   niallbrennan:
     givenName: Niall
     sn: Brennan
     uidAndGidNumber: 10006
     mail: niall.brennan@cms.hhs.gov
-    password: "{{ vault_ldap_niallbrennan_password }}"
   johndavis:
     givenName: John
     sn: Davis
     uidAndGidNumber: 10007
     mail: john.davis3@gdit.com
-    password: "{{ vault_ldap_johndavis_password }}"
   scottwarren:
     givenName: Scott
     sn: Warren
     uidAndGidNumber: 10008
     mail: scott.warren@gdit.com
-    password: "{{ vault_ldap_scottwarren_password }}"
   shaunbrockhoff:
     givenName: Shaun
     sn: Brockhoff
     uidAndGidNumber: 10009
     mail: shaun.brockhoff@gdit.com
-    password: "{{ vault_ldap_shaunbrockhoff_password }}"
   scottkoerselman:
     givenName: Scott
     sn: Koerselman
     uidAndGidNumber: 10010
     mail: scott.koerselman@gdit.com
-    password: "{{ vault_ldap_scottkoerselman_password }}"
   katiepandullo:
     givenName: Katie
     sn: Pandullo
     uidAndGidNumber: 10011
     mail: katie.pandullo@gdit.com
-    password: "{{ vault_ldap_katiepandullo_password }}"
   clintsmalley:
     givenName: Clint
     sn: Smalley
     uidAndGidNumber: 10012
     mail: clint.smalley@gdit.com
-    password: "{{ vault_ldap_clintsmalley_password }}"
   sarahfeist:
     givenName: Sarah
     sn: Feist
     uidAndGidNumber: 10013
     mail: sarah.feist@gdit.com
-    password: "{{ vault_ldap_sarahfeist_password }}"
   cynthiaweigel:
     givenName: Cindy
     sn: Weigel
     uidAndGidNumber: 10014
     mail: cynthia.weigel@gdit.com
-    password: "{{ vault_ldap_cynthiaweigel_password }}"
   matthewzach:
     givenName: Matthew
     sn: Zach
     uidAndGidNumber: 10015
     mail: matthew.zach@gdit.com
-    password: "{{ vault_ldap_matthewzach_password }}"
   markhuegerich:
     givenName: Mark
     sn: Huegerich
     uidAndGidNumber: 10016
     mail: mark.huegerich@gdit.com
-    password: "{{ vault_ldap_markhuegerich_password }}"
   cassidyshay:
     givenName: Cassidy
     sn: Shay
     uidAndGidNumber: 10017
     mail: cassidy.shay@gdit.com
-    password: "{{ vault_ldap_cassidyshay_password }}"
   kurthunt:
     givenName: Kurt
     sn: Hunt
     uidAndGidNumber: 10018
     mail: kurt.hunt@gdit.com
-    password: "{{ vault_ldap_kurthunt_password }}"
   adamkaufman:
     givenName: Adam
     sn: Kaufman
     uidAndGidNumber: 10019
     mail: adam.kaufman@gdit.com
-    password: "{{ vault_ldap_adamkaufman_password }}"
   mariaparedes:
     givenName: Maria
     sn: Paredes
     uidAndGidNumber: 10020
     mail: maria.paredes@gdit.com
-    password: "{{ vault_ldap_mariaparedes_password }}"
   michaeldayton:
     givenName: Mike
     sn: Dayton
     uidAndGidNumber: 10021
     mail: michael.dayton@gdit.com
-    password: "{{ vault_ldap_michaeldayton_password }}"
   marymerrick:
     givenName: Mary
     sn: Merrick
     uidAndGidNumber: 10022
     mail: mary.merrick@gdit.com
-    password: "{{ vault_ldap_marymerrick_password }}"
   daveholdgrafer:
     givenName: Dave
     sn: Holdgrafer
     uidAndGidNumber: 10023
     mail: dave.holdgrafer@gdit.com
-    password: "{{ vault_ldap_daveholdgrafer_password }}"
   curtisdumas:
     givenName: Curtis
     sn: Dumas
     uidAndGidNumber: 10024
     mail: curtis.dumas@gdit.com
-    password: "{{ vault_ldap_curtisdumas_password }}"
   akwagrembowski:
     givenName: Akwa
     sn: Grembowski
     uidAndGidNumber: 10025
     mail: akwa.grembowski@gdit.com
-    password: "{{ vault_ldap_akwagrembowski_password }}"
   micahknutzen:
     givenName: Micah
     sn: Knutzen
     uidAndGidNumber: 10026
     mail: micah.knutzen@gdit.com
-    password: "{{ vault_ldap_micahknutzen_password }}"
   leenavij:
     givenName: Leena
     sn: Vij
     uidAndGidNumber: 10027
     mail: leena.vij@gdit.com
-    password: "{{ vault_ldap_leenavij_password }}"
   bengarin:
     givenName: Ben
     sn: Garin
     uidAndGidNumber: 10028
     mail: ben.garin@gdit.com
-    password: "{{ vault_ldap_bengarin_password }}"
   lindseykralik:
     givenName: Lindsey
     sn: Kralik
     uidAndGidNumber: 10029
     mail: lindsey.kralik@gdit.com
-    password: "{{ vault_ldap_lindseykralik_password }}"
   abdulaleem:
     givenName: Abdul
     sn: Aleem
     uidAndGidNumber: 10030
     mail: abdul.aleem@gdit.com
-    password: "{{ vault_ldap_abdulaleem_password }}"
   jeffdoke:
     givenName: Jeff
     sn: Doke
     uidAndGidNumber: 10031
     mail: jeff.doke@gdit.com
-    password: "{{ vault_ldap_jeffdoke_password }}"
   mattsorenson:
     givenName: Matt
     sn: Sorenson
     uidAndGidNumber: 10032
     mail: matt.sorenson@gdit.com
-    password: "{{ vault_ldap_mattsorenson_password }}"
   susiejoe:
     givenName: Susie
     sn: Joe
     uidAndGidNumber: 10033
     mail: susie.joe@gdit.com
-    password: "{{ vault_ldap_susiejoe_password }}"
   derekgrittmann:
     givenName: Derek
     sn: Grittmann
     uidAndGidNumber: 10034
     mail: derek.grittmann@gdit.com
-    password: "{{ vault_ldap_derekgrittmann_password }}"
   joachimkumedzro:
     givenName: Joachim
     sn: Kumedzro
     uidAndGidNumber: 10035
     mail: joachim.kumedzro@gdit.com
-    password: "{{ vault_ldap_joachimkumedzro_password }}"
 
+# User accounts that should no longer exist.
+people_deleted:
+  # A typo led to this bad entry.
+  - lorimaattta
