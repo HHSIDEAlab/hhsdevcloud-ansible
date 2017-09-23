@@ -215,4 +215,10 @@ people:
     uidAndGidNumber: 10034
     mail: derek.grittmann@gdit.com
     password: "{{ vault_ldap_derekgrittmann_password }}"
+  joachimkumedzro:
+    givenName: Joachim
+    sn: Kumedzro
+    uidAndGidNumber: 10035
+    mail: joachim.kumedzro@gdit.com
+    password: "{{ vault_ldap_joachimkumedzro_password }}"
 
