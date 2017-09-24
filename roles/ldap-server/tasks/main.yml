@@ -34,7 +34,7 @@
     - python-ldap
 
 - name: Create Directory OUs
-  ldap_entry: 
+  ldap_entry:
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
     dn: "{{ item.dn }}"
@@ -45,7 +45,7 @@
     - { dn: 'ou=services,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
 
 - name: Create JIRA Service User
-  ldap_entry: 
+  ldap_entry:
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
     bind_pw: "{{ ldap_root_password }}"
     dn: 'cn=jira,ou=services,dc=hhsdevcloud,dc=us' 
