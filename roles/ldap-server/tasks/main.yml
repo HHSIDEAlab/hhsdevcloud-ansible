@@ -33,6 +33,18 @@
     - db-util
     - python-ldap
 
+# Note: We have to manually search the config to see which modules are loaded,
+# because the `ldap_entry` logic isn't quite smart enough to figure that out on
+# its own. (It gets confused by the indexing notation that's used.)
+- name: Check OpenLDAP Config
+  command: /usr/bin/ldapsearch -H ldapi:/// -Y EXTERNAL -b cn=config
+  register: command_ldapsearch_config
+  become: true
+  changed_when: false
+
+# Enable and configure the `ppolicy` module.
+- import_tasks: ppolicy.yml
+
 - name: Create Directory OUs
   ldap_entry:
     bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'

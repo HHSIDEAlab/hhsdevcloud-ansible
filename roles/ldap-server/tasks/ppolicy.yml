@@ -1,0 +1,99 @@
+---
+##
+# Enables and configures the OpenLDAP `ppolicy` module. This module is used
+# here for two main reasons:
+#
+# 1. It ensures that user passwords are hashed when users change them.
+# 2. It enforces a minimal amount of password complexity.
+#
+# The module also provides other features we don't use, such as locking out
+# accounts after failed authentication attempts.
+#
+# References:
+#
+# * https://www.flagword.net/2013/02/openldap-with-tls-ppolicy-and-master-master-replication-on-rhel6-3/
+# * https://tobrunet.ch/articles/openldap-password-policy-overlay/
+##
+
+- name: Enable ppolicy Overlay Module
+  ldap_entry:
+    dn: 'cn=module,cn=config'
+    objectClass: olcModuleList
+    cn: module
+    olcModuleLoad: ppolicy.la
+    olcModulePath: /usr/lib/ldap
+  become: true
+  when: command_ldapsearch_config.stdout.find('ppolicy.la') < 0
+
+- name: Configure ppolicy Hashing Mechanism
+  ldap_attr:
+    dn: "{{ item.dn }}"
+    state: exact
+    name: "{{ item.name }}"
+    values: "{{ item.value }}"
+  become: true
+  with_items:
+    - { dn: 'olcDatabase={-1}frontend,cn=config', name: 'olcPasswordHash', value: '{CRYPT}' }
+    # This crypt format string specifies to use SHA512 with 12 characters of
+    # salt (72 bits) and the default 5000 iterations.
+    - { dn: 'cn=config', name: 'olcPasswordCryptSaltFormat', value: '$6$%.12s' }
+
+# Load the ppolicy Schema. The `ldapadd` command will throw errors about
+# duplicate attributes, but will still work "enougH", so we ignore those
+# failures.
+- name: Load ppolicy Schema
+  command: /usr/bin/ldapadd -f /etc/ldap/schema/ppolicy.ldif -H ldapi:/// -Y EXTERNAL
+  args:
+    creates: /etc/ldap/schema/ppolicy.ldif.loaded
+  become: true
+  failed_when: false
+  register: command_ldapadd_ppolicy_schema
+- name: Mark ppolicy Schema as Loaded
+  copy: content='' dest=/etc/ldap/schema/ppolicy.ldif.loaded force=no
+  become: true
+  when: command_ldapadd_ppolicy_schema.changed
+
+# Set the config entries for which ppolicy features will be enabled/disabled.
+# For some reason, the `ldap_entr` module wasn't working here, so we use
+# `ldapadd`, instead.
+- name: Create LDIF to Configure ppolicy Features
+  copy:
+    content: |
+      dn: olcOverlay=ppolicy,olcDatabase={1}hdb,cn=config
+      objectClass: olcPPolicyConfig
+      olcOverlay: ppolicy
+      olcPPolicyDefault: cn=ppolicy,ou=policies,dc=hhsdevcloud,dc=us
+      olcPPolicyHashCleartext: TRUE
+    dest: /etc/ldap/ansible-ppolicy-features.ldif
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  become: true
+  register: copy_ppolicy_features_ldif
+- name: Configure ppolicy Features
+  command: /usr/bin/ldapadd -f /etc/ldap/ansible-ppolicy-features.ldif -D "cn=config" -H ldapi:/// -Y EXTERNAL
+  become: true
+  when: copy_ppolicy_features_ldif.changed
+
+- name: Create Policies OU
+  ldap_entry:
+    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
+    bind_pw: "{{ ldap_root_password }}"
+    dn: 'ou=policies,dc=hhsdevcloud,dc=us'
+    objectClass: ['organizationalUnit']
+
+# The latest NIST guidance on passwords is basically, "require length >= 8,
+# disallow common passwords, the end." We can't easily screen for common
+# passwords, so we just enforce a length check. Some form of rate limiting
+# would also be good, but it might be best to handle that at a different layer.
+# Reference for settings allowed here:
+# http://www.zytrax.com/books/ldap/ch6/ppolicy.html.
+- name: Create Default ppolicy
+  ldap_entry:
+    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
+    bind_pw: "{{ ldap_root_password }}"
+    dn: cn=ppolicy,ou=policies,dc=hhsdevcloud,dc=us
+    objectClass: [top, device, pwdPolicyChecker, pwdPolicy]
+    cn: ppolicy
+    pwdAttribute: userPassword
+    pwdMinLength: '8'
