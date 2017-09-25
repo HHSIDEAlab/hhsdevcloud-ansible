@@ -1,0 +1,26 @@
+---
+
+- name: Disable Site 'default'
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  notify:
+    - "Restart Service 'nginx'"
+
+- name: Create Site 'jira'
+  template: src=jira.j2 dest=/etc/nginx/sites-available/jira owner=root group=root mode="u=rw,g=r,o=r"
+  notify:
+    - "Restart Service 'nginx'"
+
+- name: Enable Site 'jira'
+  file: src=/etc/nginx/sites-available/jira dest=/etc/nginx/sites-enabled/jira owner=root group=root state=link
+  notify:
+    - "Restart Service 'nginx'"
+
+- name: Create Site 'jenkins'
+  template: src=jenkins.j2 dest=/etc/nginx/sites-available/jenkins owner=root group=root mode="u=rw,g=r,o=r"
+  notify:
+    - "Restart Service 'nginx'"
+
+- name: Enable Site 'jenkins'
+  file: src=/etc/nginx/sites-available/jenkins dest=/etc/nginx/sites-enabled/jenkins owner=root group=root state=link
+  notify:
+    - "Restart Service 'nginx'"
