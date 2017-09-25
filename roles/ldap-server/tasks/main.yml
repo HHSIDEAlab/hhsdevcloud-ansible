@@ -96,21 +96,18 @@
 
 - name: Create Directory OUs
   ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
     dn: "{{ item.dn }}"
     objectClass: "{{ item.objectClass }}"
   with_items:
     - { dn: 'ou=people,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
     - { dn: 'ou=groups,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
     - { dn: 'ou=services,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
+  become: true
 
 # Create `ou=people` entries for each `people` entry (in `../vars/main.yml`).
 # Note that this module does not handles updates-- only inserts.
 - name: Create User Accounts
   ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
     dn: "uid={{ item.key }},ou=people,dc=hhsdevcloud,dc=us"
     objectClass: ['inetOrgPerson', 'posixAccount']
     uid: "{{ item.key }}"
@@ -123,18 +120,18 @@
     loginShell: '/bin/bash'
     homeDirectory: "/home/{{ item.key }}"
     mail: "{{ item.value.mail }}"
+  become: true
   with_dict: "{{ people }}"
   register: ldap_entr_people
 
 # Passwords are set in a separate task so we can use no_log on it without too much hassle.
 - name: Set Initial Password for New Users
   ldap_attr:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
     dn: "uid={{ item.key }},ou=people,dc=hhsdevcloud,dc=us"
     state: exact
     name: userPassword
     values: "{{ item.value }}"
+  become: true
   # Only set the password if the account has just been created, to avoid
   # overwriting passwords once users change them.
   when: ldap_entr_people.results | selectattr('item.key', 'equalto', item.key) | map(attribute='changed') | list | first
@@ -144,39 +141,35 @@
 # Create `ou=groups` entries for each `people` entry (in `../vars/main.yml`).
 - name: Create User Groups
   ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
     dn: "cn={{ item.key }},ou=groups,dc=hhsdevcloud,dc=us"
     objectClass: 'posixGroup'
     cn: "{{ item.key }}"
     gidNumber: "{{ item.value.uidAndGidNumber }}"
+  become: true
   with_dict: "{{ people }}"
 
 # Update email addresses, as needed.
 - name: Update User Account Emails
   ldap_attr:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
     dn: "uid={{ item.key }},ou=people,dc=hhsdevcloud,dc=us"
     state: exact
     name: mail
     values: "{{ item.value.mail }}"
+  become: true
   with_dict: "{{ people }}"
 
 - name: Delete Defunct User Accounts
   ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
     dn: "uid={{ item }},ou=people,dc=hhsdevcloud,dc=us"
     state: absent
+  become: true
   with_items: "{{ people_deleted }}"
 
 - name: Delete Defunct User Groups
   ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
     dn: "cn={{ item }},ou=groups,dc=hhsdevcloud,dc=us"
     state: absent
+  become: true
   with_items: "{{ people_deleted }}"
 
 - name: Create LDAP Administrators Group
