@@ -4,3 +4,12 @@
   apt: name={{ item }} update_cache=true cache_valid_time="{{ 60 * 15 }}"
   with_items:
     - nginx
+
+# Need to disable this site right away and restart, so that nginx isn't
+# listening on port 80. That would conflict with `acmetool`, which is installed
+# and used just a bit later.
+- name: Disable Site 'default'
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  notify:
+    - "Restart Service 'nginx'"
+- meta: flush_handlers

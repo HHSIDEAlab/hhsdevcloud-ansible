@@ -1,7 +1,7 @@
 ---
 
-- name: Disable Site 'default'
-  file: path=/etc/nginx/sites-enabled/default state=absent
+- name: Create 'ssl_config' Snippet
+  template: src=ssl_config.conf.j2 dest=/etc/nginx/snippets/ssl_config.conf owner=root group=root mode="u=rw,g=r,o=r"
   notify:
     - "Restart Service 'nginx'"
 
@@ -15,12 +15,13 @@
   notify:
     - "Restart Service 'nginx'"
 
-- name: Create Site 'jenkins'
-  template: src=jenkins.j2 dest=/etc/nginx/sites-available/jenkins owner=root group=root mode="u=rw,g=r,o=r"
-  notify:
-    - "Restart Service 'nginx'"
-
-- name: Enable Site 'jenkins'
-  file: src=/etc/nginx/sites-available/jenkins dest=/etc/nginx/sites-enabled/jenkins owner=root group=root state=link
-  notify:
-    - "Restart Service 'nginx'"
+# FIXME: Disabled until Jenkins box is brought back online.
+#- name: Create Site 'jenkins'
+#  template: src=jenkins.j2 dest=/etc/nginx/sites-available/jenkins owner=root group=root mode="u=rw,g=r,o=r"
+#  notify:
+#    - "Restart Service 'nginx'"
+#
+#- name: Enable Site 'jenkins'
+#  file: src=/etc/nginx/sites-available/jenkins dest=/etc/nginx/sites-enabled/jenkins owner=root group=root state=link
+#  notify:
+#    - "Restart Service 'nginx'"

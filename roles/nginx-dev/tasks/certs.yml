@@ -1,0 +1,28 @@
+---
+
+# Apply and configure the `L-P.acmetool` role. This will start a Let's Encrypt client that listens on port 
+# 80, answering LE challenges, and redirecting all other traffic to port 443.
+# LE certificates will be created as `/var/lib/acme/live/HOSTNAME/{cert,chain,fullchain,privkey}`.
+- import_role:
+    name: L-P.acmetool
+  vars:
+    acmetool_email: karl.davis@cms.hhs.gov
+    acmetool_domains: "{{ jira_dns }} {{ jenkins_dns }}"
+    acmetool_server: "{{ 'https://acme-v01.api.letsencrypt.org/directory' if env == 'production' else 'https://acme-staging.api.letsencrypt.org/directory' }}"
+    become: true
+
+# The default DH params are weak, and will lead to poor SSL Labs test scores.
+- name: Generate a Diffie-Hellman Group (this will take a while)
+  command: /usr/bin/openssl dhparam -out /etc/ssl/dhparams.pem 2048
+  args:
+    creates: /etc/ssl/dhparams.pem
+  become: true
+
+- name: Set Diffie-Hellman Group Permissions
+  file:
+    path: /etc/ssl/dhparams.pem
+    state: file
+    owner: root
+    group: root
+    mode: u=rw,g=,o=
+  become: true

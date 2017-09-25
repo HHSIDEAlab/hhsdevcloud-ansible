@@ -12,8 +12,18 @@
 ##
 
 server {
-	listen 80;
 	server_name {{ jenkins_dns }};
+
+	# Set the SSL certificate keypair to be used for this site.
+	ssl_certificate /var/lib/acme/live/{{ jenkins_dns }}/fullchain;
+	ssl_certificate_key /var/lib/acme/live/{{ jenkins_dns }}/privkey;
+
+	# Verify chain of trust of OCSP response using the cert's Root CA and
+	# Intermediate certs.
+	ssl_trusted_certificate /var/lib/acme/live/{{ jenkins_dns }}/fullchain;
+
+	# Configure SSL.
+	include /etc/nginx/snippets/ssl_config.conf;
 
 	location / {
 		proxy_set_header X-Forwarded-Host $host;

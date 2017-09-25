@@ -67,7 +67,9 @@
                    disableUploadTimeout="true"
 
                    proxyName="{{ jira_dns }}"
-                   proxyPort="80"/>
+		   proxyPort="443"
+		   scheme="https"
+		   secure="true"/>
 
         <Connector port="8081"
 

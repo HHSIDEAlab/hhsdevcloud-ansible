@@ -45,6 +45,20 @@
           - proto: all
             cidr_ip: 0.0.0.0/0
     
+    - name: EC2 - Provision Security Group 'https-all'
+      ec2_group:
+        name: https-all
+        description: Allows incoming traffic on port 443 (from all IPs).
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+
     - name: RDS - Provision 'postgres-dev'
       rds:
         command: create
@@ -193,6 +207,7 @@
           - default
           - ssh-all
           - http-all
+          - https-all
         instance_type: t2.micro
         image: "{{ ami_id_ubuntu_16 }}"
         region: "{{ region }}"
