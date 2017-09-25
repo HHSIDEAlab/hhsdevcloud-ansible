@@ -33,6 +33,55 @@
     - db-util
     - python-ldap
 
+# FIXME: Replace all `command` calls to `ldapmodify` once this Ansible bug is resolved:
+# https://github.com/ansible/ansible/issues/30814
+
+# Ensure that sudo/root and admin group members can modify the directory.
+#
+# Notes:
+# * The root/sudo user is a manager of the directory, to simplify things.
+# * JIRA needs write access to most things in order to:
+#     * Allow users to modify their passwords in JIRA. (The `ppolicy` module
+#       used here ensures this is done securely.)
+#     * Allow administrators to modify group membership from within JIRA's
+#       admin interface.
+- name: Write LDIF to Configure Directory Permissions
+  copy:
+    content: |
+      dn: olcDatabase={1}hdb,cn=config
+      changetype: modify
+      delete: olcAccess
+      -
+      add: olcAccess
+      olcAccess: {0}to attrs=userPassword
+        by self write
+        by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+        by group.exact="cn=administrators-ldap,ou=groups,dc=hhsdevcloud,dc=us" manage
+        by dn.exact="cn=jira,ou=services,dc=hhsdevcloud,dc=us" write
+        by anonymous auth
+        by * none
+      olcAccess: {1}to attrs=shadowLastChange
+        by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+        by group.exact="cn=administrators-ldap,ou=groups,dc=hhsdevcloud,dc=us" manage
+        by dn.exact="cn=jira,ou=services,dc=hhsdevcloud,dc=us" write
+        by self write
+        by * read
+      olcAccess: {2}to *
+        by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+        by group.exact="cn=administrators-ldap,ou=groups,dc=hhsdevcloud,dc=us" manage
+        by dn.exact="cn=jira,ou=services,dc=hhsdevcloud,dc=us" write
+        by * read
+    dest: /etc/ldap/ansible-olcAccess.ldif
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  become: true
+  register: copy_ldif_olcAccess
+- name: Run LDIF to Configure Directory Permissions
+  command: /usr/bin/ldapmodify -H ldapi:/// -Y EXTERNAL -D "cn=config" -f /etc/ldap/ansible-olcAccess.ldif
+  become: true
+  when: copy_ldif_olcAccess.changed
+
 # Note: We have to manually search the config to see which modules are loaded,
 # because the `ldap_entry` logic isn't quite smart enough to figure that out on
 # its own. (It gets confused by the indexing notation that's used.)
@@ -55,15 +104,6 @@
     - { dn: 'ou=people,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
     - { dn: 'ou=groups,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
     - { dn: 'ou=services,dc=hhsdevcloud,dc=us', objectClass: ['organizationalUnit'] }
-
-- name: Create JIRA Service User
-  ldap_entry:
-    bind_dn: 'cn=admin,dc=hhsdevcloud,dc=us'
-    bind_pw: "{{ ldap_root_password }}"
-    dn: 'cn=jira,ou=services,dc=hhsdevcloud,dc=us' 
-    objectClass: ['organizationalRole', 'simpleSecurityObject']
-    cn: jira
-    userPassword: "{{ ldap_jira_password }}"
 
 # Create `ou=people` entries for each `people` entry (in `../vars/main.yml`).
 # Note that this module does not handles updates-- only inserts.
@@ -138,3 +178,16 @@
     dn: "cn={{ item }},ou=groups,dc=hhsdevcloud,dc=us"
     state: absent
   with_items: "{{ people_deleted }}"
+
+- name: Create LDAP Administrators Group
+  ldap_entry:
+    dn: "cn=ldap-administrators,ou=groups,dc=hhsdevcloud,dc=us"
+    objectClass: groupOfNames
+    cn: ldap-administrators
+    description: Specifies which users are allowed to administer LDAP.
+    member: uid=karldavis,ou=people,dc=hhsdevcloud,dc=us
+    member: uid=markscrimshire,ou=people,dc=hhsdevcloud,dc=us
+  become: true
+
+# Create/update the JIRA-related entries.
+- import_tasks: jira_entries.yml

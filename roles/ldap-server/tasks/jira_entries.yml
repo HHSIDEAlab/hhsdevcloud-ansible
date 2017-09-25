@@ -1,0 +1,48 @@
+---
+##
+# Creates/updates the LDAP entries related to JIRA.
+#
+# Note that JIRA is integrated with this LDAP directory in a read-write manner,
+# so changes made here may overwrite those made manually in JIRA and vice-versa.
+# Administrators should take care to keep that from happening.
+##
+
+- name: Create JIRA Service User
+  ldap_entry:
+    dn: 'cn=jira,ou=services,dc=hhsdevcloud,dc=us'
+    objectClass: ['organizationalRole', 'simpleSecurityObject']
+    cn: jira
+    userPassword: "{{ ldap_jira_password }}"
+  become: true
+
+- name: Create JIRA Groups
+  ldap_entry:
+    dn: "cn={{ item.cn }},ou=groups,dc=hhsdevcloud,dc=us"
+    objectClass: groupOfNames
+    cn: "{{ item.cn }}"
+    description: "{{ item.description }}"
+    member: uid=karldavis,ou=people,dc=hhsdevcloud,dc=us
+  become: true
+  with_items:
+    - { cn: 'jira-administrators-ldap', description: 'Specifies which users are allowed to administer JIRA.' }
+    - { cn: 'jira-software-users-ldap', description: 'Specifies which users are allowed to access JIRA.' }
+
+- name: Populate jira-administrators-ldap Group
+  ldap_attr:
+    dn: cn=jira-administrators-ldap,ou=groups,dc=hhsdevcloud,dc=us
+    state: present
+    name: member
+    values: "{{ item }}"
+  with_items:
+    - uid=karldavis,ou=people,dc=hhsdevcloud,dc=us
+    - uid=markscrimshire,ou=people,dc=hhsdevcloud,dc=us
+  become: true
+
+- name: Populate jira-software-users-ldap Group
+  ldap_attr:
+    dn: cn=jira-software-users-ldap,ou=groups,dc=hhsdevcloud,dc=us
+    state: present
+    name: member
+    values: "{{ item }}"
+  with_items: "{{ people.keys() | map('regex_replace', '^(.*)$', 'uid=\\1,ou=people,dc=hhsdevcloud,dc=us') | list }}"
+  become: true
