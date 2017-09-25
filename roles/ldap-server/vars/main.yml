@@ -187,6 +187,26 @@ people:
     sn: Kumedzro
     uidAndGidNumber: 10035
     mail: joachim.kumedzro@gdit.com
+  tinawilkins:
+    givenName: Tina
+    sn: Wilkins
+    uidAndGidNumber: 10036
+    mail: tina.wilkins@gdit.com
+  brianglover:
+    givenName: Brian
+    sn: Glover
+    uidAndGidNumber: 10037
+    mail: brian.glover@gdit.com
+  chukauzokwe:
+    givenName: Chuka
+    sn: Uzokwe
+    uidAndGidNumber: 10038
+    mail: chuka.uzokwe@cms.hhs.gov
+  samgensburg:
+    givenName: Sam
+    sn: Gensburg
+    uidAndGidNumber: 10039
+    mail: sam.gensburg@cms.hhs.gov
 
 # User accounts that should no longer exist.
 people_deleted:
