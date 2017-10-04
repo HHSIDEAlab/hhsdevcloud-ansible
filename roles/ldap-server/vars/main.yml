@@ -207,6 +207,16 @@ people:
     sn: Gensburg
     uidAndGidNumber: 10039
     mail: sam.gensburg@cms.hhs.gov
+  nathanielmudd:
+    givenName: Nathaniel
+    sn: Mudd
+    uidAndGidNumber: 10040
+    mail: nathaniel.mudd@cms.hhs.gov
+  kellytaylor:
+    givenName: Kelly
+    sn: Taylor
+    uidAndGidNumber: 10041
+    mail: kelly.taylor@cms.hhs.gov
 
 # User accounts that should no longer exist.
 people_deleted:
