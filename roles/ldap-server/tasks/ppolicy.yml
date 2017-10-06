@@ -19,9 +19,10 @@
   ldap_entry:
     dn: 'cn=module,cn=config'
     objectClass: olcModuleList
-    cn: module
-    olcModuleLoad: ppolicy.la
-    olcModulePath: /usr/lib/ldap
+    attributes:
+      cn: module
+      olcModuleLoad: ppolicy.la
+      olcModulePath: /usr/lib/ldap
   become: true
   when: command_ldapsearch_config.stdout.find('ppolicy.la') < 0
 
@@ -94,6 +95,7 @@
     bind_pw: "{{ ldap_root_password }}"
     dn: cn=ppolicy,ou=policies,dc=hhsdevcloud,dc=us
     objectClass: [top, device, pwdPolicyChecker, pwdPolicy]
-    cn: ppolicy
-    pwdAttribute: userPassword
-    pwdMinLength: '8'
+    attributes:
+      cn: ppolicy
+      pwdAttribute: userPassword
+      pwdMinLength: '8'

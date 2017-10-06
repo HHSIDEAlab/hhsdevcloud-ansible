@@ -110,16 +110,17 @@
   ldap_entry:
     dn: "uid={{ item.key }},ou=people,dc=hhsdevcloud,dc=us"
     objectClass: ['inetOrgPerson', 'posixAccount']
-    uid: "{{ item.key }}"
-    cn: "{{ item.value.givenName }} {{ item.value.sn }}"
-    displayName: "{{ item.value.givenName }} {{ item.value.sn }}"
-    givenName: "{{ item.value.givenName }}"
-    sn: "{{ item.value.sn }}"
-    uidNumber: "{{ item.value.uidAndGidNumber }}"
-    gidNumber: "{{ item.value.uidAndGidNumber }}"
-    loginShell: '/bin/bash'
-    homeDirectory: "/home/{{ item.key }}"
-    mail: "{{ item.value.mail }}"
+    attributes:
+      uid: "{{ item.key }}"
+      cn: "{{ item.value.givenName }} {{ item.value.sn }}"
+      displayName: "{{ item.value.givenName }} {{ item.value.sn }}"
+      givenName: "{{ item.value.givenName }}"
+      sn: "{{ item.value.sn }}"
+      uidNumber: "{{ item.value.uidAndGidNumber }}"
+      gidNumber: "{{ item.value.uidAndGidNumber }}"
+      loginShell: '/bin/bash'
+      homeDirectory: "/home/{{ item.key }}"
+      mail: "{{ item.value.mail }}"
   become: true
   with_dict: "{{ people }}"
   register: ldap_entr_people
@@ -143,8 +144,9 @@
   ldap_entry:
     dn: "cn={{ item.key }},ou=groups,dc=hhsdevcloud,dc=us"
     objectClass: 'posixGroup'
-    cn: "{{ item.key }}"
-    gidNumber: "{{ item.value.uidAndGidNumber }}"
+    attributes:
+      cn: "{{ item.key }}"
+      gidNumber: "{{ item.value.uidAndGidNumber }}"
   become: true
   with_dict: "{{ people }}"
 
@@ -176,10 +178,11 @@
   ldap_entry:
     dn: "cn=ldap-administrators,ou=groups,dc=hhsdevcloud,dc=us"
     objectClass: groupOfNames
-    cn: ldap-administrators
-    description: Specifies which users are allowed to administer LDAP.
-    member: uid=karldavis,ou=people,dc=hhsdevcloud,dc=us
-    member: uid=markscrimshire,ou=people,dc=hhsdevcloud,dc=us
+    attributes:
+      cn: ldap-administrators
+      description: Specifies which users are allowed to administer LDAP.
+      member: uid=karldavis,ou=people,dc=hhsdevcloud,dc=us
+      member: uid=markscrimshire,ou=people,dc=hhsdevcloud,dc=us
   become: true
 
 # Create/update the JIRA-related entries.

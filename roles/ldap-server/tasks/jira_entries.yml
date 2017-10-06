@@ -11,17 +11,19 @@
   ldap_entry:
     dn: 'cn=jira,ou=services,dc=hhsdevcloud,dc=us'
     objectClass: ['organizationalRole', 'simpleSecurityObject']
-    cn: jira
-    userPassword: "{{ ldap_jira_password }}"
+    attributes:
+      cn: jira
+      userPassword: "{{ ldap_jira_password }}"
   become: true
 
 - name: Create JIRA Groups
   ldap_entry:
     dn: "cn={{ item.cn }},ou=groups,dc=hhsdevcloud,dc=us"
     objectClass: groupOfNames
-    cn: "{{ item.cn }}"
-    description: "{{ item.description }}"
-    member: uid=karldavis,ou=people,dc=hhsdevcloud,dc=us
+    attributes:
+      cn: "{{ item.cn }}"
+      description: "{{ item.description }}"
+      member: uid=karldavis,ou=people,dc=hhsdevcloud,dc=us
   become: true
   with_items:
     - { cn: 'jira-administrators-ldap', description: 'Specifies which users are allowed to administer JIRA.' }
