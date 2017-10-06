@@ -4,7 +4,7 @@
 #
 # Usage: This playbook should be run as follows:
 #
-#     $ ansible-playbook provision.yml --extra-vars "provisioned_inventory={ hosts_test | hosts_productions } ec2_key_name=hhs-dev-karlmdavis env=test" 
+#     $ ansible-playbook provision.yml --extra-vars "provisioned_inventory={ hosts_test | hosts_production } ec2_key_name=hhs-dev-karlmdavis env=test" 
 
 - hosts: localhost
   name: AWS - Provision Resources and Instances
