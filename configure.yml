@@ -7,6 +7,9 @@
 #
 #     $ ansible-playbook configure.yml --inventory-file={ hosts_test | hosts_productions }
 
+# Ensure that all EC2 instances get regularly backed up.
+- import_playbook: backups.yml
+
 - hosts: ldap
   name: Configure 'ldap'
   user: ubuntu

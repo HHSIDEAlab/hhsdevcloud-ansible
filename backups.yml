@@ -1,0 +1,80 @@
+---
+##
+# This playbook configures automatic snapshotting of the development
+# infrastructure in the `hhsdevcloud` AWS account.
+#
+# Usage: This playbook should be run as follows:
+#
+#     $ ansible-playbook backups.yml --inventory={ hosts_test | hosts_production } 
+##
+
+- hosts: localhost
+  name: AWS - Provision Resources and Instances
+  connection: local
+  gather_facts: false
+  
+  tasks:
+    
+    - name: Create IAM Role for Shared Dev Services
+      iam:
+        iam_type: role
+        name: SharedDevServices-Backups
+        state: present
+        # The `trust_policy` only defines what/who can assume/become this role; it
+        # doesn't define what the role will have access to.
+        trust_policy:
+          Version: '2012-10-17'
+          Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      register: iam_backups_role
+
+    - name: Give SharedDevServices-Backups Access to AWS Services
+      iam_policy:
+        iam_type: role
+        iam_name: SharedDevServices-Backups
+        policy_name: SharedDevServices-Backups
+        state: present
+        policy_document: files/snapshot_backups_policy.json
+
+    - name: Zip Lambda Scripts
+      archive:
+        path: "files/{{ item }}"
+        dest: "/tmp/hhsdevcloud_shareddevservices_{{ item }}.zip"
+        format: zip
+      with_items:
+        - snapshot_ec2_rds_volumes.py
+        - snapshot_cleanup.py
+
+    - name: Create Snapshot Backup Lambda Functions
+      lambda:
+        name: "{{ item.name }}"
+        description: "{{ item.description }}"
+        zip_file: "{{ item.zip_file }}"
+        runtime: python2.7
+        timeout: 300
+        role: "{{ iam_backups_role.instance_profile_result.roles.member.arn }}"
+        handler: "{{ item.filename }}.lambda_handler"
+      with_items:
+        - name: SharedDevServices-SnapshotEc2AndRdsVolumes
+          description: 'Creates a new snapshot of all volumes on EC2 and RDS instances that have a `Backup` tag.'
+          zip_file: /tmp/hhsdevcloud_shareddevservices_snapshot_ec2_rds_volumes.py.zip
+          filename: snapshot_ec2_rds_volumes
+        - name: SharedDevServices-SnapshotCleanup
+          description: Cleans up old snapshots of EC2 and RDS volumes.
+          zip_file: /tmp/hhsdevcloud_shareddevservices_snapshot_cleanup.py.zip
+          filename: snapshot_cleanup
+      register: lambda_snapshot_backups
+
+    - name: Schedule Snapshot Backup Lambda Functions
+      cloudwatchevent_rule:
+        name: SharedDevServices-SnapshotBackupsTrigger
+        schedule_expression: 'cron(0 4 * * ? *)'
+        description: Runs the snapshot backup scripts every day at 4am.
+        targets:
+          - id: SharedDevServices-SnapshotEc2AndRdsVolumesTrigger
+            arn: "{{ lambda_snapshot_backups.results | selectattr('configuration.function_name', 'equalto', 'SharedDevServices-SnapshotEc2AndRdsVolumes') | map(attribute='configuration.function_arn') | list | first }}"
+          - id: SharedDevServices-SnapshotCleanupTrigger
+            arn: "{{ lambda_snapshot_backups.results | selectattr('configuration.function_name', 'equalto', 'SharedDevServices-SnapshotCleanup') | map(attribute='configuration.function_arn') | list | first }}"
