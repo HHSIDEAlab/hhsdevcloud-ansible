@@ -217,6 +217,11 @@ people:
     sn: Taylor
     uidAndGidNumber: 10041
     mail: kelly.taylor@cms.hhs.gov
+  armandoalberti:
+    givenName: Armando
+    sn: Alberti
+    uidAndGidNumber: 10042
+    mail: armando.alberti@gdit.com
 
 # User accounts that should no longer exist.
 people_deleted:
