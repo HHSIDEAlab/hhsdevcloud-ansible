@@ -232,6 +232,11 @@ people:
     sn: Tan
     uidAndGidNumber: 10044
     mail: ronnie.tan@cms.hhs.gov
+  sangeethamukkavilli:
+    givenName: Sangeetha
+    sn: Mukkavilli
+    uidAndGidNumber: 10045
+    mail: sangeetha.mukkavilli@gdit.com
 
 # User accounts that should no longer exist.
 people_deleted:
