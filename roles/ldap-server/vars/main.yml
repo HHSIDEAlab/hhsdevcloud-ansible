@@ -222,6 +222,16 @@ people:
     sn: Alberti
     uidAndGidNumber: 10042
     mail: armando.alberti@gdit.com
+  jonicooper:
+    givenName: Joni
+    sn: Cooper
+    uidAndGidNumber: 10043
+    mail: joni.cooper@cms.hhs.gov
+  ronnietan:
+    givenName: Ronnie
+    sn: Tan
+    uidAndGidNumber: 10044
+    mail: ronnie.tan@cms.hhs.gov
 
 # User accounts that should no longer exist.
 people_deleted:
