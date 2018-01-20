@@ -237,6 +237,26 @@ people:
     sn: Mukkavilli
     uidAndGidNumber: 10045
     mail: sangeetha.mukkavilli@gdit.com
+  joyday:
+    givenName: Joy
+    sn: Day
+    uidAndGidNumber: 10046
+    mail: joy.day@cms.hhs.gov
+  catgreim:
+    givenName: Cat
+    sn: Greim
+    uidAndGidNumber: 10047
+    mail: cat@adhocteam.us
+  ryannagle:
+    givenName: Ryan
+    sn: Nagle
+    uidAndGidNumber: 10048
+    mail: ryan@adhocteam.us
+  davidgage:
+    givenName: David
+    sn: Gage
+    uidAndGidNumber: 10049
+    mail: dgage@fearless.tech
 
 # User accounts that should no longer exist.
 people_deleted:
