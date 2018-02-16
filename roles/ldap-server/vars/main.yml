@@ -267,6 +267,26 @@ people:
     sn: Geer
     uidAndGidNumber: 10051
     mail: jacob.geer@gdit.com
+  shaunverch:
+    givenName: Shaun
+    sn: Verch
+    uidAndGidNumber: 10052
+    mail: shaun.verch@gdit.com
+  jordanlawrence:
+    givenName: Jordan
+    sn: Lawrence
+    uidAndGidNumber: 10053
+    mail: jordan.lawrence@gdit.com
+  stevenmonroe:
+    givenName: Steven
+    sn: Monroe
+    uidAndGidNumber: 10054
+    mail: steven.monroe@gdit.com
+  judysiegel:
+    givenName: Judy
+    sn: Siegel
+    uidAndGidNumber: 10055
+    mail: judy.siegel@cms.hhs.gov
 
 # User accounts that should no longer exist.
 people_deleted:
