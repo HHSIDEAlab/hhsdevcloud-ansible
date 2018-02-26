@@ -286,7 +286,7 @@ people:
     givenName: Judy
     sn: Siegel
     uidAndGidNumber: 10055
-    mail: judy.siegel@cms.hhs.gov
+    mail: judith.m.siegel@eop.omb.gov
 
 # User accounts that should no longer exist.
 people_deleted:
