@@ -287,6 +287,11 @@ people:
     sn: Siegel
     uidAndGidNumber: 10055
     mail: judith.m.siegel@omb.eop.gov
+  cherylcarter:
+    givenName: Cheryl
+    sn: Carter
+    uidAndGidNumber: 10056
+    mail: cheryl.carter@cgifederal.com
 
 # User accounts that should no longer exist.
 people_deleted:
