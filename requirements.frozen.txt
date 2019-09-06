@@ -17,7 +17,7 @@ futures==3.1.1
 idna==2.6
 ipaddress==1.0.18
 jmespath==0.9.3
-paramiko==2.3.1
+paramiko==2.3.3
 pyasn1==0.3.6
 pycparser==2.18
 python-dateutil==2.6.1
